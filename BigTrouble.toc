@@ -1,0 +1,27 @@
+## Interface: 11100
+
+## Title: BigTrouble |cff7fff7f -Ace2-|r
+## Notes: A cast bar for AimedShot and AutoShot
+## Author: Fleetfoot of Laughing Skull
+## Version: 1.0.$Revision: 973 $
+## X-Date: $Date: 2006-08-14 17:35:17 +0200 (Mon, 14 Aug 2006) $
+## DefaultState: Enabled
+## OptionalDeps: Ace2
+## LoadOnDemand: 0
+## SavedVariables: BigTroubleDB
+
+# Libraries
+libs\AceLibrary\AceLibrary.lua
+libs\AceOO\AceOO-2.0.lua
+
+libs\AceAddon\AceAddon-2.0.lua
+libs\AceConsole\AceConsole-2.0.lua
+libs\AceHook\AceHook-2.0.lua
+libs\AceDB\AceDB-2.0.lua
+libs\AceDebug\AceDebug-2.0.lua
+libs\AceEvent\AceEvent-2.0.lua
+libs\AceLocale\AceLocale-2.0.lua
+
+# Addon
+BigTrouble.lua
+BigTrouble-enUS.lua
