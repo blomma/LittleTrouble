@@ -27,7 +27,7 @@ local auraGain	= string.find( AURAADDEDSELFHELPFUL, "%%s" )
 local auraFade	= string.gsub( AURAREMOVEDSELF, "%%s", "" )
 
 local duration, aimedShot, autoShot, lock, spellFailed, skipSpellCastStop, startTime, endTime
-local fadeOut, thresHold, delay
+local fadeOut, thresHold, delay, delayString
 local rapidFire, quickShots, berserker = false, false, false
 
 BigTrouble = AceLibrary("AceAddon-2.0"):new("AceEvent-2.0", "AceDebug-2.0", "AceHook-2.0", "AceDB-2.0", "AceConsole-2.0")
@@ -373,25 +373,21 @@ function BigTrouble:OnUpdate()
 			currentTime = endTime
 			thresHold = true
 			
-			-- Check if this was an aimed shot that has finished
 			if( aimedShot ) then 
                 aimedShot = false 
                 self.master.Bar:SetStatusBarColor( self.db.profile.Colors.complete.r, self.db.profile.Colors.complete.g, self.db.profile.Colors.complete.b )
             end
 		end
 
-		self.master.Time:SetText(string.format( "%.1f", math.max( endTime - currentTime, 0.0 )))
+		self.master.Time:SetText(string.format( "%.1f", ( endTime - currentTime )))
 
 		if( delay ~= 0 ) then
-			self.master.Delay:SetText("+"..string.format("%.1f", delay ))
-		else
-			self.master.Delay:SetText("")
-		end
+			self.master.Delay:SetText( delayString )
+        end
 
 		self.master.Bar:SetValue( currentTime )
 
-		local width = self.master.Bar:GetWidth()
-		sparkProgress = (( currentTime - startTime ) / ( endTime - startTime )) * width
+		sparkProgress = (( currentTime - startTime ) / ( endTime - startTime )) * self.db.profile.Bar.width
 		if( sparkProgress < 0 ) then sparkProgress = 0 end
 
 		self.master.Spark:SetPoint("CENTER", self["master"]["Bar"], "LEFT", sparkProgress, 0)
@@ -485,7 +481,9 @@ function BigTrouble:SpellCastDelayed( d )
 		startTime = startTime + d
 		endTime = endTime + d
 		delay = delay + d
-
+        
+        delayString = "+"..string.format( "%.1f", delay )
+        
 		self.master.Bar:SetMinMaxValues( startTime, endTime )
 	end
 
