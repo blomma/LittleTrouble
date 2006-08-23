@@ -493,7 +493,6 @@ function BigTrouble:PeriodicSelfBuffs( name )
 		quickShots = true
 	elseif( match == L"Berserking" ) then
 		berserker = true
-		self:Duration()
 	end
 
 end
