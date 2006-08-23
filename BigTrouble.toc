@@ -25,3 +25,4 @@ libs\AceLocale\AceLocale-2.0.lua
 # Addon
 BigTrouble.lua
 BigTrouble-enUS.lua
+BigTrouble-deDE.lua
