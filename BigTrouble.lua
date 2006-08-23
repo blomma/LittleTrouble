@@ -367,12 +367,12 @@ function BigTrouble:OnUpdate()
 	local self = BigTrouble
 
 	if( ( aimedShot or autoShot ) and not thresHold ) then
-		local currentTime, sparkProgress = GetTime(), 0
+		local currentTime = GetTime()
 	
 		if( currentTime > endTime ) then
 			currentTime = endTime
 			thresHold = true
-			
+
 			if( aimedShot ) then 
                 aimedShot = false 
                 self.master.Bar:SetStatusBarColor( self.db.profile.Colors.complete.r, self.db.profile.Colors.complete.g, self.db.profile.Colors.complete.b )
@@ -380,16 +380,10 @@ function BigTrouble:OnUpdate()
 		end
 
 		self.master.Time:SetText(string.format( "%.1f", ( endTime - currentTime )))
-
-		if( delay ~= 0 ) then
-			self.master.Delay:SetText( delayString )
-        end
-
+		if( delay ~= 0 ) then self.master.Delay:SetText( delayString ) end
 		self.master.Bar:SetValue( currentTime )
 
-		sparkProgress = (( currentTime - startTime ) / ( endTime - startTime )) * self.db.profile.Bar.width
-		if( sparkProgress < 0 ) then sparkProgress = 0 end
-
+		local sparkProgress = (( currentTime - startTime ) / ( endTime - startTime )) * self.db.profile.Bar.width
 		self.master.Spark:SetPoint("CENTER", self["master"]["Bar"], "LEFT", sparkProgress, 0)
 
 	elseif( fadeOut ) then

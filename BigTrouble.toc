@@ -1,4 +1,4 @@
-## Interface: 11100
+## Interface: 11200
 
 ## Title: BigTrouble |cff7fff7f -Ace2-|r
 ## Notes: A cast bar for AimedShot and AutoShot
