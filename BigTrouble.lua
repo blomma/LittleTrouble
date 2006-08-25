@@ -10,24 +10,25 @@ local Default = {
 		timeSize	= 12,
 		spellSize	= 12,
 		delaySize	= 14,
-		edgeSize	= 16,
-    },
-    Colors = {
-		complete	= {r=0, g=1, b=0},
-		autoShot	= {r=1, g=.7, b=0},
-		aimedShot	= {r=.3, g=.3, b=1},
-		failed		= {r=1, g=0, b=0},
     },
     aimedDelay	= 0.35,
 	pos			= {}
+}
+
+local Colors = {
+	complete	= {r=0, g=1, b=0},
+	autoShot	= {r=1, g=.7, b=0},
+	aimedShot	= {r=.3, g=.3, b=1},
+	failed		= {r=1, g=0, b=0},
 }
 
 -- Local variables
 local auraGain	= string.find( AURAADDEDSELFHELPFUL, "%%s" )
 local auraFade	= string.gsub( AURAREMOVEDSELF, "%%s", "" )
 
-local duration, aimedShot, autoShot, lock, spellFailed, skipSpellCastStop, startTime, endTime
-local fadeOut, thresHold, delay, delayString
+local startTime, endTime, delay, duration
+local aimedShot, autoShot, spellFailed, skipSpellCastStop
+local fadeOut, thresHold, delayString
 local rapidFire, quickShots, berserker = false, false, false
 
 BigTrouble = AceLibrary("AceAddon-2.0"):new("AceEvent-2.0", "AceDebug-2.0", "AceHook-2.0", "AceDB-2.0", "AceConsole-2.0")
@@ -41,9 +42,9 @@ function BigTrouble:OnInitialize()
 			lock = {
 				name = 'Lock', type = 'toggle', order = 1,
 				desc = "Lock/Unlock the bar",
-				get = function() return lock end,
+				get = function() return self.lock end,
 				set = function( v )
-					lock = v
+					self.lock = v
 					if( v ) then
 						self.master:Hide()
 						self.master:SetScript( "OnUpdate", self.OnUpdate )
@@ -89,7 +90,7 @@ function BigTrouble:OnInitialize()
 						args = {
 							spell = {
 								name = "Spell", type = 'range', min = 6, max = 32, step = 1,
-								desc = "Set the font size on the spellname, when casting.",
+								desc = "Set the font size on the spellname.",
 								get = function() return self.db.profile.Bar.spellSize end,
 								set = function( v )
 									self.db.profile.Bar.spellSize = v
@@ -132,7 +133,7 @@ end
 
 function BigTrouble:OnEnable()
 
-	lock = true
+	self.lock = true
 	self:CreateFrameWork()
 
 	self.tooltip = CreateFrame("GameTooltip", "BigTroubleTooltip", nil, "GameTooltipTemplate")
@@ -143,7 +144,7 @@ function BigTrouble:OnEnable()
 	self:RegisterEvent("CHAT_MSG_SPELL_AURA_GONE_SELF", "AuraGoneSelf")
 	self:RegisterEvent("START_AUTOREPEAT_SPELL", "StartAutoRepeatSpell")
 	self:RegisterEvent("STOP_AUTOREPEAT_SPELL", "StopAutoRepeatSpell")
-	self:RegisterEvent("SPELLCAST_INTERRUPTED","SpellFailed")
+	self:RegisterEvent("SPELLCAST_INTERRUPTED","SpellInterrupted")
 	self:RegisterEvent("SPELLCAST_FAILED", "SpellFailed")
 	self:RegisterEvent("SPELLCAST_DELAYED", "SpellCastDelayed")
 	self:RegisterEvent("SPELLCAST_STOP", "SpellCastStop")
@@ -191,12 +192,12 @@ function BigTrouble:CreateFrameWork()
 	self.master:SetMovable(true)
 	self.master:EnableMouse(true)
 	self.master:RegisterForDrag("LeftButton")
-	self.master:SetScript("OnDragStart", function() if not lock then self["master"]:StartMoving() end end)
+	self.master:SetScript("OnDragStart", function() if not self.lock then self["master"]:StartMoving() end end)
 	self.master:SetScript("OnDragStop", function() self["master"]:StopMovingOrSizing() self:SavePosition() end)
 
-	self.master.Bar = CreateFrame("StatusBar", nil, self.master)
+	self.master.Bar   = CreateFrame("StatusBar", nil, self.master)
 	self.master.Spark = self.master.Bar:CreateTexture(nil, "OVERLAY")
-	self.master.Time = self.master.Bar:CreateFontString(nil, "OVERLAY")
+	self.master.Time  = self.master.Bar:CreateFontString(nil, "OVERLAY")
 	self.master.Spell = self.master.Bar:CreateFontString(nil, "OVERLAY")
 	self.master.Delay = self.master.Bar:CreateFontString(nil, "OVERLAY")
     
@@ -215,7 +216,7 @@ function BigTrouble:Layout()
 	self.master:SetBackdrop({
 		bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", tile = true, tileSize = 16,
 		edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", 
-		edgeSize = db.edgeSize,
+		edgeSize = 16,
 		insets = {left = 5, right = 5, top = 5, bottom = 5},
 	})
 
@@ -329,22 +330,15 @@ function BigTrouble:AimedShot()
 
 	duration = aimedDuration + self.db.profile.aimedDelay
 	
+	self.master.Bar:SetStatusBarColor( Colors.aimedShot.r, Colors.aimedShot.g, Colors.aimedShot.b )
 	self:BarCreate(L"Aimed Shot")
 
 end
 
 function BigTrouble:BarCreate(s)
 
-	local db = self.db.profile.Colors
-	
 	startTime = GetTime()
 	endTime = startTime + duration
-
-	if( aimedShot ) then
-		self.master.Bar:SetStatusBarColor( db.aimedShot.r, db.aimedShot.g, db.aimedShot.b )
-	else
-		self.master.Bar:SetStatusBarColor( db.autoShot.r, db.autoShot.g, db.autoShot.b )
-	end
 
 	self.master.Bar:SetMinMaxValues( startTime, endTime )
 	self.master.Bar:SetValue( startTime )
@@ -375,7 +369,7 @@ function BigTrouble:OnUpdate()
 
 			if( aimedShot ) then 
                 aimedShot = false 
-                self.master.Bar:SetStatusBarColor( self.db.profile.Colors.complete.r, self.db.profile.Colors.complete.g, self.db.profile.Colors.complete.b )
+                self.master.Bar:SetStatusBarColor( Colors.complete.r, Colors.complete.g, Colors.complete.b )
             end
 		end
 
@@ -413,7 +407,7 @@ function BigTrouble:PlayerEnteringWorld()
 	fadeOut = false
 	aimedShot = false
 	
-	if( lock ) then self.master:Hide() end
+	if( self.lock ) then self.master:Hide() end
 
 end
 
@@ -423,7 +417,22 @@ function BigTrouble:SpellCastStop()
 
 	if( autoShot and not aimedShot ) then
 		duration = UnitRangedDamage("player")
+		self.master.Bar:SetStatusBarColor( Colors.autoShot.r, Colors.autoShot.g, Colors.autoShot.b )
 		self:BarCreate(L"Auto Shot") 
+	end
+
+end
+
+function BigTrouble:SpellInterrupted()
+
+	if aimedShot then aimedShot = false end
+	if( self.master:IsShown() ) then
+		self.master.Spark:Hide()
+
+		self.master.Spell:SetText(L"Interrupted")
+		if not autoShot then fadeOut = true end
+
+		self.master.Bar:SetStatusBarColor( Colors.failed.r, Colors.failed.g, Colors.failed.b )
 	end
 
 end
@@ -436,33 +445,24 @@ function BigTrouble:SpellFailed()
 		If we are still doing an Auto Shot while getting a SpellFailed
 		it means we failed either a Aimed Shot or a sting during a cycle
 		this we can safley ignore and just return from it.
+		
 		The exception to this being if were in the middle of an Aimed Shot and
 		were still also Auto Shoting
 	--]]
-	if autoShot and event == "SPELLCAST_FAILED" and not aimedShot then
-        return
-    end
+	if autoShot and not aimedShot then return end
     
-	-- Check if we were doing an Aimed Shot, Auto Shot is taken care elsewhere
-	if aimedShot then aimedShot = false end
+	aimedShot = false
 
-	if( self.master.Bar:IsVisible() ) then
-		local db = self.db.profile.Colors
-		
+	--[[
+		We use this to check if we are actaully shooting anything, this since
+		autoShot is turned off before this event gets called and hence cannot
+		be used to check that we are doing something
+	--]]
+	if( self.master:IsShown() ) then
 		self.master.Spark:Hide()
-		self.master.Time:SetText("")
-
-		if( event == "SPELLCAST_FAILED" ) then
-			self.master.Spell:SetText(L"Failed")
-			fadeOut = true
-		else -- We have an int.
-			self.master.Spell:SetText(L"Interrupted")
-			if not autoShot then fadeOut = true end
-		end
-
-		self.master.Bar:SetMinMaxValues( 0, duration + delay )
-		self.master.Bar:SetValue( duration + delay )
-		self.master.Bar:SetStatusBarColor( db.failed.r, db.failed.g, db.failed.b )
+		self.master.Spell:SetText(L"Failed")
+		fadeOut = true
+		self.master.Bar:SetStatusBarColor( Colors.failed.r, Colors.failed.g, Colors.failed.b )
 	end
 
 end
@@ -508,7 +508,7 @@ function BigTrouble:AuraGoneSelf( name )
 	elseif( match == L"Berserking" ) then
 		berserker = false
 	end
-
+	
 end
 
 function BigTrouble:StartAutoRepeatSpell()
