@@ -266,9 +266,9 @@ function BigTrouble:UseAction( id, book, onself )
 	self.hooks["UseAction"].orig( id, book, onself )
 	if spellFailed then return end
 
-	if( name == L"Aimed Shot" and not aimedShot ) then
+	if( name == L["Aimed Shot"] and not aimedShot ) then
 		self:AimedShot()
-	elseif( name ~= L"Auto Shot" ) then
+	elseif( name ~= L["Auto Shot"] ) then
 		skipSpellCastStop = true
 	end
 
@@ -282,9 +282,9 @@ function BigTrouble:CastSpell( id, book )
 	self.hooks["CastSpell"].orig( id, book )
 	if spellFailed then return end
 
-	if( name == L"Aimed Shot" and not aimedShot ) then
+	if( name == L["Aimed Shot"] and not aimedShot ) then
 		self:AimedShot()
-	elseif( name ~= L"Auto Shot" ) then
+	elseif( name ~= L["Auto Shot"] ) then
 		skipSpellCastStop = true
 	end
 
@@ -298,9 +298,9 @@ function BigTrouble:CastSpellByName( spellName )
 	self.hooks["CastSpellByName"].orig( spellName )
 	if spellFailed then return end
 
-	if( name == L"Aimed Shot" and not aimedShot ) then
+	if( name == L["Aimed Shot"] and not aimedShot ) then
 		self:AimedShot()
-	elseif( name ~= L"Auto Shot" ) then
+	elseif( name ~= L["Auto Shot"] ) then
 		skipSpellCastStop = true
 	end
 
@@ -331,7 +331,7 @@ function BigTrouble:AimedShot()
 	duration = aimedDuration + self.db.profile.aimedDelay
 	
 	self.master.Bar:SetStatusBarColor( Colors.aimedShot.r, Colors.aimedShot.g, Colors.aimedShot.b )
-	self:BarCreate(L"Aimed Shot")
+	self:BarCreate(L["Aimed Shot"])
 
 end
 
@@ -418,7 +418,7 @@ function BigTrouble:SpellCastStop()
 	if( autoShot and not aimedShot ) then
 		duration = UnitRangedDamage("player")
 		self.master.Bar:SetStatusBarColor( Colors.autoShot.r, Colors.autoShot.g, Colors.autoShot.b )
-		self:BarCreate(L"Auto Shot") 
+		self:BarCreate(L["Auto Shot"]) 
 	end
 
 end
@@ -429,10 +429,11 @@ function BigTrouble:SpellInterrupted()
 	if( self.master:IsShown() ) then
 		self.master.Spark:Hide()
 
-		self.master.Spell:SetText(L"Interrupted")
-		if not autoShot then fadeOut = true end
-
+		self.master.Bar:SetMinMaxValues( 0, duration + delay )
+		self.master.Bar:SetValue( duration + delay )
 		self.master.Bar:SetStatusBarColor( Colors.failed.r, Colors.failed.g, Colors.failed.b )
+		self.master.Spell:SetText(L["Interrupted"])
+		if not autoShot then fadeOut = true end
 	end
 
 end
@@ -460,9 +461,12 @@ function BigTrouble:SpellFailed()
 	--]]
 	if( self.master:IsShown() ) then
 		self.master.Spark:Hide()
-		self.master.Spell:SetText(L"Failed")
-		fadeOut = true
+        
+		self.master.Bar:SetMinMaxValues( 0, duration + delay )
+		self.master.Bar:SetValue( duration + delay )
 		self.master.Bar:SetStatusBarColor( Colors.failed.r, Colors.failed.g, Colors.failed.b )
+		self.master.Spell:SetText(L["Failed"])
+		fadeOut = true
 	end
 
 end
@@ -487,11 +491,11 @@ function BigTrouble:PeriodicSelfBuffs( name )
 
 	local _,_, match = string.find( name, "([%w%s]+)%.", auraGain)
 
-	if( match == L"Rapid Fire" ) then
+	if( match == L["Rapid Fire"] ) then
 		rapidFire = true
-	elseif( match == L"Quick Shots" ) then
+	elseif( match == L["Quick Shots"] ) then
 		quickShots = true
-	elseif( match == L"Berserking" ) then
+	elseif( match == L["Berserking"] ) then
 		berserker = true
 	end
 
@@ -501,11 +505,11 @@ function BigTrouble:AuraGoneSelf( name )
 
 	local match = string.gsub( name, auraFade, "" )
 
-	if( match == L"Rapid Fire" ) then
+	if( match == L["Rapid Fire"] ) then
 		rapidFire = false
-	elseif( match == L"Quick Shots" ) then
+	elseif( match == L["Quick Shots"] ) then
 		quickShots = false
-	elseif( match == L"Berserking" ) then
+	elseif( match == L["Berserking"] ) then
 		berserker = false
 	end
 	
