@@ -25,5 +25,6 @@ libs\Gratuity\Gratuity-2.0.lua
 
 # Addon
 BigTrouble.lua
+BigTroubleOptions.lua
 BigTrouble-enUS.lua
 BigTrouble-deDE.lua

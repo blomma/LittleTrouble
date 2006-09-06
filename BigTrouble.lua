@@ -212,7 +212,7 @@ function BigTrouble:CastSpellByName( spellName )
 end
 
 --[[
-	My appoligecs neronix. The duration code down below was 
+	My appology neronix. The duration code down below was 
 	blantanly stolen from neronix, i did so without concern or consideration
 	for his feeling. I could at this point say that im sorry and it wont happen
 	again, but knowing what an evil git i am that would prolly be a lie.
@@ -353,7 +353,7 @@ function BigTrouble:SpellFailed()
 	--[[
 		We use this to check if we are actaully shooting anything, this since
 		autoShot is turned off before this event gets called and hence cannot
-		be used to check that we are doing something
+		be used to check if we are doing something
 	--]]
 	if( self.master:IsShown() ) then
 		self.master.Spark:Hide()
