@@ -44,6 +44,8 @@ end
 function BigTrouble:OnEnable()
 
 	self.locked = true
+	self.opt = self.db.profile
+    
 	self:CreateFrameWork()
 
 	self:RegisterEvent("START_AUTOREPEAT_SPELL", "StartAutoRepeatSpell")
@@ -57,8 +59,6 @@ function BigTrouble:OnEnable()
 	self:Hook("UseAction")
 	self:Hook("CastSpell")
 	self:Hook("CastSpellByName")
-
-	self.opt = self.db.profile
 	
 end
 
