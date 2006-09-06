@@ -23,16 +23,14 @@ local Colors = {
 }
 
 -- Local variables
-local auraGain	= string.find( AURAADDEDSELFHELPFUL, "%%s" )
-local auraFade	= string.gsub( AURAREMOVEDSELF, "%%s", "" )
-
 local startTime, endTime, delay, duration
 local aimedShot, autoShot, spellFailed, skipSpellCastStop
-local fadeOut, thresHold, delayString
-local rapidFire, quickShots, berserker = false, false, false
+local thresHold, delayString
 
 BigTrouble = AceLibrary("AceAddon-2.0"):new("AceEvent-2.0", "AceDebug-2.0", "AceHook-2.0", "AceDB-2.0", "AceConsole-2.0")
 local L = AceLibrary("AceLocale-2.0"):new("BigTrouble")
+local gratuity = AceLibrary("Gratuity-2.0")
+local gratuityTextLeft1 = gratuity.vars.Llines[1]
 
 function BigTrouble:OnInitialize()
 	
@@ -127,7 +125,7 @@ function BigTrouble:OnInitialize()
 	self:RegisterDefaults('profile', Default)
 	self:RegisterChatCommand( {"/btrouble"}, Options )
 	
-	self:SetDebugging(false)
+	self:SetDebugging(true)
 
 end
 
@@ -136,12 +134,6 @@ function BigTrouble:OnEnable()
 	self.lock = true
 	self:CreateFrameWork()
 
-	self.tooltip = CreateFrame("GameTooltip", "BigTroubleTooltip", nil, "GameTooltipTemplate")
-	self.tooltip:SetOwner(self.tooltip, "ANCHOR_NONE")
-	self.tooltip.GetText = function() if BigTroubleTooltipTextLeft1:IsVisible() then return BigTroubleTooltipTextLeft1:GetText() end end
-
-	self:RegisterEvent("CHAT_MSG_SPELL_PERIODIC_SELF_BUFFS", "PeriodicSelfBuffs")
-	self:RegisterEvent("CHAT_MSG_SPELL_AURA_GONE_SELF", "AuraGoneSelf")
 	self:RegisterEvent("START_AUTOREPEAT_SPELL", "StartAutoRepeatSpell")
 	self:RegisterEvent("STOP_AUTOREPEAT_SPELL", "StopAutoRepeatSpell")
 	self:RegisterEvent("SPELLCAST_INTERRUPTED","SpellInterrupted")
@@ -259,8 +251,8 @@ end
 
 function BigTrouble:UseAction( id, book, onself )
 
-	self.tooltip:SetAction( id )
-	local name = self.tooltip.GetText()
+	gratuity:SetAction( id )
+	local name = gratuityTextLeft1:GetText()
 
 	spellFailed = false
 	self.hooks["UseAction"].orig( id, book, onself )
@@ -311,25 +303,12 @@ function BigTrouble:AimedShot()
 	skipSpellCastStop = true
 	aimedShot = true
 	
-	local aimedDuration = 3
+    local speedCurrent = UnitRangedDamage("player")
+    gratuity:SetInventoryItem("player", 18)
+    _, _, speedMax = gratuity:Find("([%.%d]+)", nil, nil, true)
+    local speed = speedMax / speedCurrent
 
-	if( rapidFire ) then aimedDuration = aimedDuration / 1.4 end
-	if( quickShots ) then aimedDuration = aimedDuration / 1.3 end
-
-	--[[ 
-		The formula for calculating Berserking Haste value was taken from the 
-		BerserkMeter Addon by Axelrod of Mannoroth (axelrod@deschi.com)
-	--]]
-	if( berserker ) then
-		local percentHealth = (UnitHealth("player") / UnitHealthMax("player")) * 100
-		local berserkValue = ( 130 / 3 ) - (( 1 / 3 ) * percentHealth )
-		if( berserkValue > 30 ) then berserkValue = 30 end
-		local multiplier = 1 / ( 1 + ( berserkValue / 100 ))
-		aimedDuration = aimedDuration * multiplier
-	end
-
-	duration = aimedDuration + self.db.profile.aimedDelay
-	
+    duration = ( 3.0 / speed ) + self.db.profile.aimedDelay
 	self.master.Bar:SetStatusBarColor( Colors.aimedShot.r, Colors.aimedShot.g, Colors.aimedShot.b )
 	self:BarCreate(L["Aimed Shot"])
 
@@ -348,7 +327,6 @@ function BigTrouble:BarCreate(s)
 	self.master.Delay:SetText("")
 
 	delay = 0
-	fadeOut	= false
 	thresHold = false
 
 	self.master:Show()
@@ -380,14 +358,12 @@ function BigTrouble:OnUpdate()
 		local sparkProgress = (( currentTime - startTime ) / ( endTime - startTime )) * self.db.profile.Bar.width
 		self.master.Spark:SetPoint("CENTER", self["master"]["Bar"], "LEFT", sparkProgress, 0)
 
-	elseif( fadeOut ) then
+	else
 		local a = self.master:GetAlpha() - .05
 
 		if( a > 0 ) then
 			self.master:SetAlpha(a)
 		else
-			fadeOut = false
-			
 			self.master:Hide()
 			self.master.Time:SetText("")
 			self.master.Delay:SetText("")
@@ -404,7 +380,6 @@ end
 function BigTrouble:PlayerEnteringWorld()
 
 	autoShot = false
-	fadeOut = false
 	aimedShot = false
 	
 	if( self.lock ) then self.master:Hide() end
@@ -425,7 +400,7 @@ end
 
 function BigTrouble:SpellInterrupted()
 
-	if aimedShot then aimedShot = false end
+	aimedShot = false
 	if( self.master:IsShown() ) then
 		self.master.Spark:Hide()
 
@@ -433,7 +408,6 @@ function BigTrouble:SpellInterrupted()
 		self.master.Bar:SetValue( duration + delay )
 		self.master.Bar:SetStatusBarColor( Colors.failed.r, Colors.failed.g, Colors.failed.b )
 		self.master.Spell:SetText(L["Interrupted"])
-		if not autoShot then fadeOut = true end
 	end
 
 end
@@ -466,7 +440,6 @@ function BigTrouble:SpellFailed()
 		self.master.Bar:SetValue( duration + delay )
 		self.master.Bar:SetStatusBarColor( Colors.failed.r, Colors.failed.g, Colors.failed.b )
 		self.master.Spell:SetText(L["Failed"])
-		fadeOut = true
 	end
 
 end
@@ -487,34 +460,6 @@ function BigTrouble:SpellCastDelayed( d )
 
 end
 
-function BigTrouble:PeriodicSelfBuffs( name )
-
-	local _,_, match = string.find( name, "([%w%s]+)%.", auraGain)
-
-	if( match == L["Rapid Fire"] ) then
-		rapidFire = true
-	elseif( match == L["Quick Shots"] ) then
-		quickShots = true
-	elseif( match == L["Berserking"] ) then
-		berserker = true
-	end
-
-end
-
-function BigTrouble:AuraGoneSelf( name )
-
-	local match = string.gsub( name, auraFade, "" )
-
-	if( match == L["Rapid Fire"] ) then
-		rapidFire = false
-	elseif( match == L["Quick Shots"] ) then
-		quickShots = false
-	elseif( match == L["Berserking"] ) then
-		berserker = false
-	end
-	
-end
-
 function BigTrouble:StartAutoRepeatSpell()
 
 	autoShot = true
@@ -524,6 +469,5 @@ end
 function BigTrouble:StopAutoRepeatSpell()
 
 	autoShot = false
-	fadeOut = true
 
 end
