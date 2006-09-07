@@ -50,7 +50,7 @@ function BigTrouble:OnEnable()
 
 	self:RegisterEvent("START_AUTOREPEAT_SPELL", "StartAutoRepeatSpell")
 	self:RegisterEvent("STOP_AUTOREPEAT_SPELL", "StopAutoRepeatSpell")
-	self:RegisterEvent("SPELLCAST_INTERRUPTED","SpellInterrupted")
+	self:RegisterEvent("SPELLCAST_INTERRUPTED","SpellFailed")
 	self:RegisterEvent("SPELLCAST_FAILED", "SpellFailed")
 	self:RegisterEvent("SPELLCAST_DELAYED", "SpellCastDelayed")
 	self:RegisterEvent("SPELLCAST_STOP", "SpellCastStop")
@@ -258,8 +258,6 @@ end
 
 function BigTrouble:OnUpdate()
 
-	local self = BigTrouble
-
 	if( ( aimedShot or autoShot ) and not thresHold ) then
 		local currentTime = GetTime()
 	
@@ -267,29 +265,28 @@ function BigTrouble:OnUpdate()
 			currentTime = endTime
 			thresHold = true
 
-			if( aimedShot ) then 
-                aimedShot = false 
-                self.master.Bar:SetStatusBarColor( Colors.complete.r, Colors.complete.g, Colors.complete.b )
+			if( aimedShot ) then
+                aimedShot = false
+                BigTrouble.master.Bar:SetStatusBarColor( Colors.complete.r, Colors.complete.g, Colors.complete.b )
             end
 		end
 
-		self.master.Time:SetText(string.format( "%.1f", ( endTime - currentTime )))
-		if( delay ~= 0 ) then self.master.Delay:SetText( delayString ) end
-		self.master.Bar:SetValue( currentTime )
+		BigTrouble.master.Time:SetText(string.format( "%.1f", ( endTime - currentTime )))
+		if( delay ~= 0 ) then BigTrouble.master.Delay:SetText( delayString ) end
+		BigTrouble.master.Bar:SetValue( currentTime )
 
-		local sparkProgress = (( currentTime - startTime ) / ( endTime - startTime )) * self.opt.Bar.width
-		self.master.Spark:SetPoint("CENTER", self["master"]["Bar"], "LEFT", sparkProgress, 0)
-
+		local sparkProgress = (( currentTime - startTime ) / ( endTime - startTime )) * BigTrouble.opt.Bar.width
+		BigTrouble.master.Spark:SetPoint("CENTER", BigTrouble.master.Bar, "LEFT", sparkProgress, 0)
 	else
-		local a = self.master:GetAlpha() - .05
+		local a = BigTrouble.master:GetAlpha() - .05
 
 		if( a > 0 ) then
-			self.master:SetAlpha(a)
+			BigTrouble.master:SetAlpha(a)
 		else
-			self.master:Hide()
-			self.master.Time:SetText("")
-			self.master.Delay:SetText("")
-			self.master:SetAlpha(1)
+			BigTrouble.master:Hide()
+			BigTrouble.master.Time:SetText("")
+			BigTrouble.master.Delay:SetText("")
+			BigTrouble.master:SetAlpha(1)
 		end
 	end
 
@@ -320,27 +317,29 @@ function BigTrouble:SpellCastStop()
 
 end
 
-function BigTrouble:SpellInterrupted()
-
-	aimedShot = false
-	if( self.master:IsShown() ) then
-		self.master.Spark:Hide()
-
-		self.master.Bar:SetMinMaxValues( 0, duration + delay )
-		self.master.Bar:SetValue( duration + delay )
-		self.master.Bar:SetStatusBarColor( Colors.failed.r, Colors.failed.g, Colors.failed.b )
-		self.master.Spell:SetText(L["Interrupted"])
-	end
-
-end
+-- function BigTrouble:SpellInterrupted()
+-- 
+-- 	aimedShot = false
+-- 	if( self.master:IsShown() ) then
+-- 		self.master.Spark:Hide()
+-- 
+-- 		self.master.Bar:SetMinMaxValues( 0, duration + delay )
+-- 		self.master.Bar:SetValue( duration + delay )
+-- 		self.master.Bar:SetStatusBarColor( Colors.failed.r, Colors.failed.g, Colors.failed.b )
+-- 		self.master.Spell:SetText(L["Interrupted"])
+-- 	end
+-- 
+-- end
 
 function BigTrouble:SpellFailed()
 
-	spellFailed = true
-
+	if event == "SPELLCAST_FAILED" then
+		spellFailed = true
+	end
+	
 	--[[ 
-		If we are still doing an Auto Shot while getting a SpellFailed
-		it means we failed either a Aimed Shot or a sting during a cycle
+		If we are still doing an Auto Shot while getting a here
+		it means we failed/interrupted either a Aimed Shot or a sting during a cycle
 		this we can safley ignore and just return from it.
 		
 		The exception to this being if were in the middle of an Aimed Shot and
@@ -361,7 +360,7 @@ function BigTrouble:SpellFailed()
 		self.master.Bar:SetMinMaxValues( 0, duration + delay )
 		self.master.Bar:SetValue( duration + delay )
 		self.master.Bar:SetStatusBarColor( Colors.failed.r, Colors.failed.g, Colors.failed.b )
-		self.master.Spell:SetText(L["Failed"])
+		self.master.Spell:SetText(L[event])
 	end
 
 end
