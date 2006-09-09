@@ -4,7 +4,7 @@ BigTrouble.options = {
         lock = {
             name = "Lock",
             type = "toggle",
-            desc = "Lock/Unlock BigTrouble",
+            desc = "Lock/Unlock BigTrouble.",
             get = "ToggleLocked",
             set = "ToggleLocked",
             map = {[false] = "Unlocked", [true] = "Locked"},
@@ -16,6 +16,15 @@ BigTrouble.options = {
 			order = 2,
 			desc = "Bar", 
 			args = {
+				border = {
+					name = "Border",
+					type = 'toggle',
+					desc = "Toggle borders BigTrouble",
+		            get = "ToggleBorder",
+		            set = "ToggleBorder",
+		            map = {[false] = "Unlocked", [true] = "Locked"},
+		            guiNameIsMap = true,
+				},
 				width = {
 					name = "Width", 
 					type = 'range', 
@@ -78,9 +87,16 @@ BigTrouble.options = {
 	}
 }
 
+function BigTrouble:ToggleBorder( value )
+
+	if not value then return self.opt.Bar.border end
+	self.opt.Bar.border = value
+
+end
+
 function BigTrouble:ToggleLocked( value )
 
-    if type(value) == "nil" then return self.locked end
+    if not value then return self.locked end
     self.locked = value
 
 	if( value ) then

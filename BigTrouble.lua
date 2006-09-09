@@ -118,10 +118,14 @@ function BigTrouble:Layout()
 	self.master:SetWidth( self.opt.Bar.width + 9 )
 	self.master:SetHeight( self.opt.Bar.height + 10 )
 
+	if self.opt.Bar.border then 
+		edgeFile, edgeSize = "Interface\\Tooltips\\UI-Tooltip-Border", 16 
+	end
+	
 	self.master:SetBackdrop({
 		bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", tile = true, tileSize = 16,
-		edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", 
-		edgeSize = 16,
+		edgeFile = edgeFile or "", 
+		edgeSize = edgeSize or "",
 		insets = {left = 5, right = 5, top = 5, bottom = 5},
 	})
 
@@ -316,20 +320,6 @@ function BigTrouble:SpellCastStop()
 	end
 
 end
-
--- function BigTrouble:SpellInterrupted()
--- 
--- 	aimedShot = false
--- 	if( self.master:IsShown() ) then
--- 		self.master.Spark:Hide()
--- 
--- 		self.master.Bar:SetMinMaxValues( 0, duration + delay )
--- 		self.master.Bar:SetValue( duration + delay )
--- 		self.master.Bar:SetStatusBarColor( Colors.failed.r, Colors.failed.g, Colors.failed.b )
--- 		self.master.Spell:SetText(L["Interrupted"])
--- 	end
--- 
--- end
 
 function BigTrouble:SpellFailed()
 
