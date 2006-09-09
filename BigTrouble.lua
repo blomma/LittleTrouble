@@ -32,6 +32,7 @@ function BigTrouble:OnInitialize()
 			timeSize	= 12,
 			spellSize	= 12,
 			delaySize	= 14,
+			border		= true
 	    },
 	    aimedDelay	= 0.35,
 		pos			= {}

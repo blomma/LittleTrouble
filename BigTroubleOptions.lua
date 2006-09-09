@@ -22,7 +22,7 @@ BigTrouble.options = {
 					desc = "Toggle borders BigTrouble",
 		            get = "ToggleBorder",
 		            set = "ToggleBorder",
-		            map = {[false] = "Unlocked", [true] = "Locked"},
+		            map = {[false] = "Off", [true] = "On"},
 		            guiNameIsMap = true,
 				},
 				width = {
