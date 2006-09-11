@@ -20,8 +20,8 @@ BigTrouble.options = {
 					name = "Border",
 					type = 'toggle',
 					desc = "Toggle borders BigTrouble",
-		            get = function() return self.opt.Bar.border end,
-		            set = function(v) self.opt.Bar.border = v	end,
+		            get = "ToggleBorder",
+		            set = "ToggleBorder",
 		            map = {[false] = "Off", [true] = "On"},
 		            guiNameIsMap = true,
 				},
@@ -32,8 +32,8 @@ BigTrouble.options = {
 					max = 500, 
 					step = 1,
 					desc = "Set the width of BigTrouble.",
-		            get = function() return self.opt.Bar.width end,
-		            set = function(v) self.opt.Bar.width = v	end,
+					get = "OptionWidth",
+					set = "OptionWidth"
 				},
 				height = {
 					name = "Height", 
@@ -42,8 +42,8 @@ BigTrouble.options = {
 					max = 50, 
 					step = 1,
 					desc = "Set the height of BigTrouble.",
-		            get = function() return self.opt.Bar.height end,
-		            set = function(v) self.opt.Bar.height = v	end,
+					get = "OptionHeight",
+					set = "OptionHeight"
 				},
 				font = {
 					name = "Font",
@@ -57,8 +57,8 @@ BigTrouble.options = {
 							max = 32,
 							step = 1,
 							desc = "Set the font size of the spellname.",
-                            get = function() return self.opt.Bar.spellSize end,
-                            set = function(v) self.opt.Bar.spellSize = v	end,
+							get = "OptionFontSpell",
+							set = "OptionFontSpell"
 						},
 						time = {
 							name = "Time", 
@@ -67,8 +67,8 @@ BigTrouble.options = {
 							max = 32, 
 							step = 1,
 							desc = "Set the font size of the spell time.",
-                            get = function() return self.opt.Bar.timeSize end,
-                            set = function(v) self.opt.Bar.timeSize = v	end,
+							get = "OptionFontTime",
+							set = "OptionFontTime"
 						},
 						delay = {
 							name = "Delay", 
@@ -77,8 +77,8 @@ BigTrouble.options = {
 							max = 32, 
 							step = 1,
 							desc = "Set the font size on the delay time.",
-                            get = function() return self.opt.Bar.delaySize end,
-                            set = function(v) self.opt.Bar.delaySize = v	end,
+							get = "OptionFontDelay",
+							set = "OptionFontDelay"
 						}
 					}
 				}
@@ -87,9 +87,17 @@ BigTrouble.options = {
 	}
 }
 
+function BigTrouble:ToggleBorder( value )
+
+	if type(value) == "nil" then return self.opt.Bar.border end
+	self.opt.Bar.border = value
+    self:Layout()
+
+end
+
 function BigTrouble:ToggleLocked( value )
 
-    if not value then return self.locked end
+    if type(value) == "nil" then return self.locked end
     self.locked = value
 
 	if( value ) then
@@ -106,5 +114,45 @@ function BigTrouble:ToggleLocked( value )
 		self.master.Delay:SetText("+0.8")
 		self.master.Spell:SetText("Son of a bitch must pay!")
 	end
+	
+end
+
+function BigTrouble:OptionWidth( value )
+
+    if type(value) == "nil" then return self.opt.Bar.width end
+    self.opt.Bar.width = value
+	self:Layout()
+	
+end
+
+function BigTrouble:OptionHeight( value )
+
+    if type(value) == "nil" then return self.opt.Bar.height end
+    self.opt.Bar.height = value
+	self:Layout()
+	
+end
+
+function BigTrouble:OptionFontSpell( value )
+
+    if type(value) == "nil" then return self.opt.Bar.spellSize end
+	self.opt.Bar.spellSize = v
+	self:Layout()
+	
+end
+
+function BigTrouble:OptionFontTime( value )
+
+    if type(value) == "nil" then return self.opt.Bar.timeSize end
+	self.opt.Bar.timeSize = v
+	self:Layout()
+	
+end
+
+function BigTrouble:OptionFontDelay( value )
+
+    if type(value) == "nil" then return self.opt.Bar.delaySize end
+	self.opt.Bar.delaySize = v
+	self:Layout()
 	
 end

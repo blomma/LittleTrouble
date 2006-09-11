@@ -119,6 +119,7 @@ function BigTrouble:Layout()
 	self.master:SetWidth( self.opt.Bar.width + 9 )
 	self.master:SetHeight( self.opt.Bar.height + 10 )
 
+    local edgeFile, edgeSize
 	if self.opt.Bar.border then 
 		edgeFile, edgeSize = "Interface\\Tooltips\\UI-Tooltip-Border", 16 
 	end
