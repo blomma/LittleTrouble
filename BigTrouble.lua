@@ -38,7 +38,7 @@ function BigTrouble:OnInitialize()
 		pos			= {}
 	})
 	
-	self:SetDebugging(true)
+	self:SetDebugging(false)
 
 end
 
