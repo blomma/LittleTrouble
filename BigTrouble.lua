@@ -1,6 +1,8 @@
 --[[
     A big thanks to otravi and his castingbar, most of the bar code is taken 
 	from his addon and warped for my evil purposes here.
+    
+    Textures for the castbar taken from agUF and oCB
 --]]
 
 
@@ -10,6 +12,16 @@ local Colors = {
 	autoShot	= {r=1, g=.7, b=0},
 	aimedShot	= {r=.3, g=.3, b=1},
 	failed		= {r=1, g=0, b=0},
+}
+
+local Textures  =
+{
+	["Perl"]    = "Interface\\AddOns\\BigTrouble\\textures\\perl",
+	["Smooth"]	= "Interface\\AddOns\\BigTrouble\\textures\\smooth",
+	["Glaze"]	= "Interface\\AddOns\\BigTrouble\\textures\\glaze",
+	["Default"]	= "Interface\\TargetingFrame\\UI-StatusBar",
+    ["BantoBar"]    = "Interface\\AddOns\\BigTrouble\\textures\\BantoBar",
+    ["Gloss"] 	= "Interface\\AddOns\\BigTrouble\\textures\\Gloss",
 }
 
 local startTime, endTime, delay, duration
@@ -32,7 +44,8 @@ function BigTrouble:OnInitialize()
 			timeSize	= 12,
 			spellSize	= 12,
 			delaySize	= 14,
-			border		= true
+			border		= true,
+            texture	    = "Default",
 	    },
 	    aimedDelay	= 0.35,
 		pos			= {}
@@ -138,7 +151,8 @@ function BigTrouble:Layout()
 	self.master.Bar:SetPoint("CENTER", self.master, "CENTER", 0, 0)
 	self.master.Bar:SetWidth( self.opt.Bar.width )
 	self.master.Bar:SetHeight( self.opt.Bar.height )
-	self.master.Bar:SetStatusBarTexture( "Interface\\TargetingFrame\\UI-StatusBar" )
+--	self.master.Bar:SetStatusBarTexture( "Interface\\TargetingFrame\\UI-StatusBar" )
+	self.master.Bar:SetStatusBarTexture( Textures[self.opt.Bar.texture] )
 
 	self.master.Spark:SetTexture("Interface\\CastingBar\\UI-CastingBar-Spark")
 	self.master.Spark:SetWidth(16)

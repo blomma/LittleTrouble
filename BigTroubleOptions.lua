@@ -16,6 +16,13 @@ BigTrouble.options = {
 			order = 2,
 			desc = "Bar", 
 			args = {
+                texture = {
+                    name = "Texture", type = 'text',
+                    desc = "Toggle the texture.",
+					get = "OptionTexture",
+					set = "OptionTexture",
+                    validate = {"Default","Perl","Smooth","Glaze","Blizzard","Striped","BantoBar"}
+                },
 				border = {
 					name = "Border",
 					type = 'toggle',
@@ -114,6 +121,14 @@ function BigTrouble:ToggleLocked( value )
 		self.master.Delay:SetText("+0.8")
 		self.master.Spell:SetText("Son of a bitch must pay!")
 	end
+	
+end
+
+function BigTrouble:OptionTexture( value )
+
+    if type(value) == "nil" then return self.opt.Bar.texture end
+    self.opt.Bar.texture = value
+	self:Layout()
 	
 end
 
