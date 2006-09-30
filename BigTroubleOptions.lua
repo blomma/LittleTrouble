@@ -21,7 +21,7 @@ BigTrouble.options = {
                     desc = "Toggle the texture.",
 					get = "OptionTexture",
 					set = "OptionTexture",
-                    validate = {"Default","Perl","Smooth","Glaze","Blizzard","Striped","BantoBar"}
+                    validate = {"Default","Perl","Smooth","Glaze","BantoBar","Gloss"}
                 },
 				border = {
 					name = "Border",
