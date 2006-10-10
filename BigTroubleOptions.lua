@@ -42,6 +42,16 @@ BigTrouble.options = {
 					get = "OptionWidth",
 					set = "OptionWidth"
 				},
+				adelay = {
+					name = "Aimedshot delay", 
+					type = 'range', 
+					min = 0, 
+					max = 1, 
+					step = 0.01,
+					desc = "Set the delay of aimed shot.",
+					get = "OptionAimedDelay",
+					set = "OptionAimedDelay"
+				},
 				height = {
 					name = "Height", 
 					type = 'range', 
@@ -137,6 +147,13 @@ function BigTrouble:OptionWidth( value )
     if type(value) == "nil" then return self.opt.Bar.width end
     self.opt.Bar.width = value
 	self:Layout()
+	
+end
+
+function BigTrouble:OptionAimedDelay( value )
+
+    if type(value) == "nil" then return self.opt.aimedDelay end
+    self.opt.aimedDelay = value
 	
 end
 

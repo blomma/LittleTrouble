@@ -62,8 +62,8 @@ function BigTrouble:OnEnable()
     
 	self:CreateFrameWork()
 
-	self:RegisterEvent("START_AUTOREPEAT_SPELL", "StartAutoRepeatSpell")
-	self:RegisterEvent("STOP_AUTOREPEAT_SPELL", "StopAutoRepeatSpell")
+	self:RegisterEvent("START_AUTOREPEAT_SPELL", function() autoShot = true end)
+	self:RegisterEvent("STOP_AUTOREPEAT_SPELL", function() autoShot = false end)
 	self:RegisterEvent("SPELLCAST_INTERRUPTED","SpellFailed")
 	self:RegisterEvent("SPELLCAST_FAILED", "SpellFailed")
 	self:RegisterEvent("SPELLCAST_DELAYED", "SpellCastDelayed")
@@ -151,7 +151,6 @@ function BigTrouble:Layout()
 	self.master.Bar:SetPoint("CENTER", self.master, "CENTER", 0, 0)
 	self.master.Bar:SetWidth( self.opt.Bar.width )
 	self.master.Bar:SetHeight( self.opt.Bar.height )
---	self.master.Bar:SetStatusBarTexture( "Interface\\TargetingFrame\\UI-StatusBar" )
 	self.master.Bar:SetStatusBarTexture( Textures[self.opt.Bar.texture] )
 
 	self.master.Spark:SetTexture("Interface\\CastingBar\\UI-CastingBar-Spark")
@@ -384,17 +383,5 @@ function BigTrouble:SpellCastDelayed( d )
         
 		self.master.Bar:SetMinMaxValues( startTime, endTime )
 	end
-
-end
-
-function BigTrouble:StartAutoRepeatSpell()
-
-	autoShot = true
-
-end
-
-function BigTrouble:StopAutoRepeatSpell()
-
-	autoShot = false
 
 end
