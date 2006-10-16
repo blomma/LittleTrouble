@@ -6,8 +6,8 @@
 --]]
 
 
--- Local variables
-local Colors = {
+local Colors = 
+{
 	complete	= {r=0, g=1, b=0},
 	autoShot	= {r=1, g=.7, b=0},
 	aimedShot	= {r=.3, g=.3, b=1},
@@ -190,8 +190,10 @@ function BigTrouble:UseAction( id, book, onself )
 	self.hooks["UseAction"].orig( id, book, onself )
 	if spellFailed then return end
 
-	if( name == L["Aimed Shot"] and not aimedShot ) then
-		self:AimedShot()
+	if( name == L["Aimed Shot"] ) then
+		if not aimedShot then
+			self:AimedShot()
+		end
 	elseif( name ~= L["Auto Shot"] ) then
 		skipSpellCastStop = true
 	end
@@ -206,8 +208,10 @@ function BigTrouble:CastSpell( id, book )
 	self.hooks["CastSpell"].orig( id, book )
 	if spellFailed then return end
 
-	if( name == L["Aimed Shot"] and not aimedShot ) then
-		self:AimedShot()
+	if( name == L["Aimed Shot"] ) then
+		if not aimedShot then
+			self:AimedShot()
+		end
 	elseif( name ~= L["Auto Shot"] ) then
 		skipSpellCastStop = true
 	end
@@ -222,8 +226,10 @@ function BigTrouble:CastSpellByName( spellName )
 	self.hooks["CastSpellByName"].orig( spellName )
 	if spellFailed then return end
 
-	if( name == L["Aimed Shot"] and not aimedShot ) then
-		self:AimedShot()
+	if( name == L["Aimed Shot"] ) then
+		if not aimedShot then
+			self:AimedShot()
+		end
 	elseif( name ~= L["Auto Shot"] ) then
 		skipSpellCastStop = true
 	end
@@ -290,7 +296,7 @@ function BigTrouble:OnUpdate()
             end
 		end
 
-		BigTrouble.master.Time:SetText(string.format( "%.1f", ( endTime - currentTime )))
+		BigTrouble.master.Time:SetText( string.format( "%.1f", ( endTime - currentTime )))
 		if( delay ~= 0 ) then BigTrouble.master.Delay:SetText( delayString ) end
 		BigTrouble.master.Bar:SetValue( currentTime )
 
@@ -342,7 +348,7 @@ function BigTrouble:SpellFailed()
 		spellFailed = true
 	end
 	
-	--[[ 
+	--[[
 		If we are still doing an Auto Shot while getting a here
 		it means we failed/interrupted either a Aimed Shot or a sting during a cycle
 		this we can safley ignore and just return from it.
