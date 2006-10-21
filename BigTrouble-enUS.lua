@@ -1,4 +1,4 @@
-local L = AceLibrary("AceLocale-2.0"):new("BigTrouble")
+local L = AceLibrary("AceLocale-2.2"):new("BigTrouble")
 L:RegisterTranslations("enUS", function()
 return {
 	["Aimed Shot"] = true,

@@ -28,8 +28,8 @@ local startTime, endTime, delay, duration
 local aimedShot, autoShot, spellFailed, skipSpellCastStop
 local thresHold, delayString
 
-BigTrouble = AceLibrary("AceAddon-2.0"):new("AceEvent-2.0", "AceDebug-2.0", "AceHook-2.0", "AceDB-2.0", "AceConsole-2.0")
-local L = AceLibrary("AceLocale-2.0"):new("BigTrouble")
+BigTrouble = AceLibrary("AceAddon-2.0"):new("AceEvent-2.0", "AceDebug-2.0", "AceHook-2.1", "AceDB-2.0", "AceConsole-2.0")
+local L = AceLibrary("AceLocale-2.2"):new("BigTrouble")
 local gratuity = AceLibrary("Gratuity-2.0")
 local gratuityTextLeft1 = gratuity.vars.Llines[1]
 
@@ -183,13 +183,13 @@ end
 
 function BigTrouble:UseAction( id, book, onself )
 
-	gratuity:SetAction( id )
-	local name = gratuityTextLeft1:GetText()
-
 	spellFailed = false
-	self.hooks["UseAction"].orig( id, book, onself )
+	self.hooks["UseAction"]( id, book, onself )
 	if spellFailed then return end
 
+	gratuity:SetAction( id )
+	local name = gratuityTextLeft1:GetText()
+    
 	if( name == L["Aimed Shot"] ) then
 		if not aimedShot then
 			self:AimedShot()
@@ -202,12 +202,12 @@ end
 
 function BigTrouble:CastSpell( id, book )
 
-	local name = GetSpellName( id, book )
-
 	spellFailed = false
-	self.hooks["CastSpell"].orig( id, book )
+	self.hooks["CastSpell"]( id, book )
 	if spellFailed then return end
 
+	local name = GetSpellName( id, book )
+    
 	if( name == L["Aimed Shot"] ) then
 		if not aimedShot then
 			self:AimedShot()
@@ -220,12 +220,12 @@ end
 
 function BigTrouble:CastSpellByName( spellName )
 
-	local _, _, name = string.find( spellName, "([%w%s]+)" )
-
 	spellFailed = false
-	self.hooks["CastSpellByName"].orig( spellName )
+	self.hooks["CastSpellByName"]( spellName )
 	if spellFailed then return end
 
+	local _, _, name = string.find( spellName, "([%w%s]+)" )
+    
 	if( name == L["Aimed Shot"] ) then
 		if not aimedShot then
 			self:AimedShot()

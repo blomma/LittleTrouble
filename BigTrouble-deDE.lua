@@ -2,7 +2,7 @@
 	German translation thx to tumetom on wowace(irc.freenode.net)
 --]]
 
-local L = AceLibrary("AceLocale-2.0"):new("BigTrouble")
+local L = AceLibrary("AceLocale-2.2"):new("BigTrouble")
 L:RegisterTranslations("deDE", function()
 return {
 	["Aimed Shot"] = "Gezielter Schuss",
