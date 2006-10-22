@@ -12,15 +12,15 @@ BigTrouble.options = {
             map = {[false] = L["Unlocked"], [true] = L["Locked"]},
             guiNameIsMap = true,
         },
-        noautoshot = {
+        autoshot = {
             name = L["Toggle Auto Shot"],
             type = "toggle",
-            desc = L["Toggle Auto Shot bar."],
+            desc = L["Toggles Auto Shot bar."],
             get = "ToggleAutoShot",
             set = "ToggleAutoShot",
             map = {[false] = L["On"], [true] = L["Off"]},
         },
-        noaimedhot = {
+        aimedshot = {
             name = L["Toggle Aimed Shot"],
             type = "toggle",
             desc = L["Toggles Aimed Shot bar."],

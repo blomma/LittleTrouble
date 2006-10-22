@@ -11,7 +11,7 @@ return {
 	["Unlocked"] = "이동",
 	["Locked"] = "고정",
 	["Toggle Auto Shot"] = "자동 사격 토글",
-	["Toggle Auto Shot bar."] = "BigTrouble 자동 사격바를 표시하지 않습니다.",
+	["Toggles Auto Shot bar."] = "BigTrouble 자동 사격바를 표시하지 않습니다.",
 	["On"] = "켬",
 	["Off"] = "끔",
 	["Toggle Aimed Shot"] = "조준 사격 표시 안함",

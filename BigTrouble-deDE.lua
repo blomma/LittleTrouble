@@ -15,7 +15,7 @@ return {
 	["Unlocked"] = true,
 	["Locked"] = true,
 	["Toggle Auto Shot"] = true,
-	["Toggle Auto Shot bar."] = true,
+	["Toggles Auto Shot bar."] = true,
 	["On"] = true,
 	["Off"] = true,
 	["Toggle Aimed Shot"] = true,
