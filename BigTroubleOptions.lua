@@ -15,18 +15,18 @@ BigTrouble.options = {
         autoshot = {
             name = L["Toggle Auto Shot"],
             type = "toggle",
-            desc = L["Toggles Auto Shot bar."],
+            desc = L["Toggle Auto Shot bar."],
             get = "ToggleAutoShot",
             set = "ToggleAutoShot",
-            map = {[false] = L["On"], [true] = L["Off"]},
+            map = {[false] = L["Off"], [true] = L["On"]},
         },
         aimedshot = {
             name = L["Toggle Aimed Shot"],
             type = "toggle",
-            desc = L["Toggles Aimed Shot bar."],
+            desc = L["Toggle Aimed Shot bar."],
             get = "ToggleAimedShot",
             set = "ToggleAimedShot",
-            map = {[false] = L["On"], [true] = L["Off"]},
+            map = {[false] = L["Off"], [true] = L["On"]},
         },
 		bar = {
 			name = L["Bar"], 
@@ -132,15 +132,15 @@ end
 
 function BigTrouble:ToggleAutoShot( value )
 
-	if type(value) == "nil" then return self.opt.noAutoShot end
-	self.opt.noAutoShot = value
+	if type(value) == "nil" then return self.opt.autoShotBar end
+	self.opt.autoShotBar = value
 
 end
 
 function BigTrouble:ToggleAimedShot( value )
 
-	if type(value) == "nil" then return self.opt.noAimedShot end
-	self.opt.noAimedShot = value
+	if type(value) == "nil" then return self.opt.aimedShotBar end
+	self.opt.aimedShotBar = value
 
 end
 

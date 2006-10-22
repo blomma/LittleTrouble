@@ -49,8 +49,8 @@ function BigTrouble:OnInitialize()
 	    },
 	    aimedDelay	= 0.35,
 		pos			= {},
-		noAutoShot	= true,
-		noAimedShot	= true
+		autoShotBar	= true,
+		aimedShotBar	= true
 	})
 	
 	self:SetDebugging(false)
@@ -250,6 +250,8 @@ end
 function BigTrouble:AimedShot()
 
 	skipSpellCastStop = true
+    if not self.opt.aimedShotBar then return end
+    
 	aimedShot = true
 	
     local speedCurrent = UnitRangedDamage("player")
@@ -265,8 +267,8 @@ end
 
 function BigTrouble:BarCreate(s)
 
-	if( s == L["Auto Shot"] and self.opt.noAutoShot ) then return end
-	if( s == L["Aimed Shot"] and self.opt.noAimedShot ) then return end
+	if( s == L["Auto Shot"] and not self.opt.autoShotBar ) then return end
+	if( s == L["Aimed Shot"] and not self.opt.aimedShotBar ) then return end
 
 	startTime = GetTime()
 	endTime = startTime + duration
