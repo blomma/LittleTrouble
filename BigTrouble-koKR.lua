@@ -6,7 +6,6 @@ return {
 	["SPELLCAST_FAILED"] = "실패",
 	["SPELLCAST_INTERRUPTED"] = "방해를 받아 취소되었습니다",
 
-
 	["Lock"] = "잠금",
 	["Lock/Unlock BigTrouble."] = "BigTrouble 바의 위치를 잠그거나 잠금을 해제합니다.",
 	["Unlocked"] = "이동",
@@ -38,6 +37,5 @@ return {
 	["Delay"] = "지연 시간", 
 	["Set the font size on the delay time."] = "주문 시전 지연 시간의 글씨 크기를 설정합니다.",
 	["Son of a bitch must pay!"] = "인과응보!",
-
 }
 end)

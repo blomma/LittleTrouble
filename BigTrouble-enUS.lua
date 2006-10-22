@@ -6,7 +6,6 @@ return {
 	["SPELLCAST_FAILED"] = "Failed",
 	["SPELLCAST_INTERRUPTED"] = "Interrupted",
 
-
 	["Lock"] = true,
 	["Lock/Unlock BigTrouble."] = true,
 	["Unlocked"] = true,
@@ -38,6 +37,5 @@ return {
 	["Delay"] = true, 
 	["Set the font size on the delay time."] = true,
 	["Son of a bitch must pay!"] = true,
-
 }
 end)
