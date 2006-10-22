@@ -48,7 +48,9 @@ function BigTrouble:OnInitialize()
             texture	    = "Default",
 	    },
 	    aimedDelay	= 0.35,
-		pos			= {}
+		pos			= {},
+		noAutoShot	= true,
+		noAimedShot	= true
 	})
 	
 	self:SetDebugging(false)
@@ -262,8 +264,9 @@ function BigTrouble:AimedShot()
 end
 
 function BigTrouble:BarCreate(s)
-	if ( s == L["Auto Shot"] and self.opt.noautoshot ) then return end
-	if ( s == L["Aimed Shot"] and self.opt.noaimedshot ) then return end
+
+	if( s == L["Auto Shot"] and self.opt.noAutoShot ) then return end
+	if( s == L["Aimed Shot"] and self.opt.noAimedShot ) then return end
 
 	startTime = GetTime()
 	endTime = startTime + duration
@@ -346,9 +349,7 @@ end
 
 function BigTrouble:SpellFailed()
 
-	if event == "SPELLCAST_FAILED" then
-		spellFailed = true
-	end
+	if event == "SPELLCAST_FAILED" then spellFailed = true end
 	
 	--[[
 		If we are still doing an Auto Shot while getting a here

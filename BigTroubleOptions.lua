@@ -132,15 +132,15 @@ end
 
 function BigTrouble:ToggleAutoShot( value )
 
-	if type(value) == "nil" then return self.opt.noautoshot end
-	self.opt.noautoshot = value
+	if type(value) == "nil" then return self.opt.noAutoShot end
+	self.opt.noAutoShot = value
 
 end
 
 function BigTrouble:ToggleAimedShot( value )
 
-	if type(value) == "nil" then return self.opt.noaimedshot end
-	self.opt.noaimedshot = value
+	if type(value) == "nil" then return self.opt.noAimedShot end
+	self.opt.noAimedShot = value
 
 end
 
