@@ -1,99 +1,117 @@
+local L = AceLibrary("AceLocale-2.2"):new("BigTrouble")
+
 BigTrouble.options = {
 	type = "group",
 	args = {
         lock = {
-            name = "Lock",
+            name = L["Lock"],
             type = "toggle",
-            desc = "Lock/Unlock BigTrouble.",
+            desc = L["Lock/Unlock BigTrouble."],
             get = "ToggleLocked",
             set = "ToggleLocked",
-            map = {[false] = "Unlocked", [true] = "Locked"},
+            map = {[false] = L["Unlocked"], [true] = L["Locked"]},
             guiNameIsMap = true,
         },
+        noautoshot = {
+            name = L["Toggle Auto Shot"],
+            type = "toggle",
+            desc = L["Toggle Auto Shot bar."],
+            get = "ToggleAutoShot",
+            set = "ToggleAutoShot",
+            map = {[false] = L["On"], [true] = L["Off"]},
+        },
+        noaimedhot = {
+            name = L["Toggle Aimed Shot"],
+            type = "toggle",
+            desc = L["Toggles Aimed Shot bar."],
+            get = "ToggleAimedShot",
+            set = "ToggleAimedShot",
+            map = {[false] = L["On"], [true] = L["Off"]},
+        },
 		bar = {
-			name = "Bar", 
+			name = L["Bar"], 
 			type = 'group', 
 			order = 2,
-			desc = "Bar", 
+			desc = L["Set bar."], 
 			args = {
                 texture = {
-                    name = "Texture", type = 'text',
-                    desc = "Toggle the texture.",
+                    name = L["Texture"], type = 'text',
+                    desc = L["Toggle the texture."],
 					get = "OptionTexture",
 					set = "OptionTexture",
                     validate = {"Default","Perl","Smooth","Glaze","BantoBar","Gloss"}
                 },
 				border = {
-					name = "Border",
+					name = L["Border"],
 					type = 'toggle',
-					desc = "Toggle borders BigTrouble",
+					desc = L["Toggle borders BigTrouble"],
 		            get = "ToggleBorder",
 		            set = "ToggleBorder",
-		            map = {[false] = "Off", [true] = "On"},
+		            map = {[false] = L["Off"], [true] = L["On"]},
 		            guiNameIsMap = true,
 				},
 				width = {
-					name = "Width", 
+					name = L["Width"], 
 					type = 'range', 
 					min = 10, 
 					max = 500, 
 					step = 1,
-					desc = "Set the width of BigTrouble.",
+					desc = L["Set the width of BigTrouble."],
 					get = "OptionWidth",
 					set = "OptionWidth"
 				},
 				adelay = {
-					name = "Aimedshot delay", 
+					name = L["Aimedshot delay"], 
 					type = 'range', 
 					min = 0, 
 					max = 1, 
 					step = 0.01,
-					desc = "Set the delay of aimed shot.",
+					desc = L["Set the delay of aimed shot."],
 					get = "OptionAimedDelay",
 					set = "OptionAimedDelay"
 				},
 				height = {
-					name = "Height", 
+					name = L["Height"], 
 					type = 'range', 
 					min = 5, 
 					max = 50, 
 					step = 1,
-					desc = "Set the height of BigTrouble.",
+					desc = L["Set the height of BigTrouble."],
 					get = "OptionHeight",
 					set = "OptionHeight"
 				},
 				font = {
-					name = "Font",
+					name = L["Font"],
 					type = 'group',
-					desc = "Set the font size of BigTrouble.",
+					desc = L["Set the font size of BigTrouble."],
 					args = {
 						spell = {
-							name = "Spell", 
+							name = L["Spell"], 
 							type = 'range', 
 							min = 6, 
 							max = 32,
 							step = 1,
-							desc = "Set the font size of the spellname.",
+							desc = L["Set the font size of the spellname."],
 							get = "OptionFontSpell",
 							set = "OptionFontSpell"
 						},
 						time = {
-							name = "Time", 
+							name = L["Time"], 
 							type = 'range', 
 							min = 6, 
 							max = 32, 
 							step = 1,
-							desc = "Set the font size of the spell time.",
+							desc = L["Set the font size of the spell time."],
 							get = "OptionFontTime",
 							set = "OptionFontTime"
 						},
 						delay = {
-							name = "Delay", 
+							name = L["Delay"], 
 							type = 'range', 
 							min = 6, 
 							max = 32, 
 							step = 1,
-							desc = "Set the font size on the delay time.",
+							desc = L["Set the font size on the delay time."],
 							get = "OptionFontDelay",
 							set = "OptionFontDelay"
 						}
@@ -109,6 +127,20 @@ function BigTrouble:ToggleBorder( value )
 	if type(value) == "nil" then return self.opt.Bar.border end
 	self.opt.Bar.border = value
     self:Layout()
+
+end
+
+function BigTrouble:ToggleAutoShot( value )
+
+	if type(value) == "nil" then return self.opt.noautoshot end
+	self.opt.noautoshot = value
+
+end
+
+function BigTrouble:ToggleAimedShot( value )
+
+	if type(value) == "nil" then return self.opt.noaimedshot end
+	self.opt.noaimedshot = value
 
 end
 
@@ -129,7 +161,7 @@ function BigTrouble:ToggleLocked( value )
 		self.master.Bar:SetStatusBarColor(.3, .3, .3)
 		self.master.Time:SetText("1.3")
 		self.master.Delay:SetText("+0.8")
-		self.master.Spell:SetText("Son of a bitch must pay!")
+		self.master.Spell:SetText(L["Son of a bitch must pay!"])
 	end
 	
 end

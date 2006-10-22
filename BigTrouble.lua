@@ -262,6 +262,8 @@ function BigTrouble:AimedShot()
 end
 
 function BigTrouble:BarCreate(s)
+	if ( s == L["Auto Shot"] and self.opt.noautoshot ) then return end
+	if ( s == L["Aimed Shot"] and self.opt.noaimedshot ) then return end
 
 	startTime = GetTime()
 	endTime = startTime + duration

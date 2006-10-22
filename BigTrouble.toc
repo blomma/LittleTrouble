@@ -1,6 +1,7 @@
 ## Interface: 11200
 
 ## Title: BigTrouble |cff7fff7f -Ace2-|r
+## Title-koKR: |CFF669900B|CFFFFFFFFig|CFF669900T|CFFFFFFFFrouble |cff7fff7f -Ace2-|r
 ## Notes: A cast bar for AimedShot and AutoShot
 ## Author: Fleetfoot of Laughing Skull
 ## Version: 1.0.$Revision$
@@ -25,6 +26,7 @@ libs\Gratuity\Gratuity-2.0.lua
 
 # Addon
 BigTrouble.lua
-BigTroubleOptions.lua
 BigTrouble-enUS.lua
 BigTrouble-deDE.lua
+BigTrouble-koKR.lua
+BigTroubleOptions.lua
