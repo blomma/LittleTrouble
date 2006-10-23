@@ -153,7 +153,7 @@ function BigTrouble:ToggleLocked( value )
 		self.master:Hide()
 		self.master:SetScript( "OnUpdate", self.OnUpdate )
 	else
-		self:StopAutoRepeatSpell()
+        autoShot = false
 		aimedShot = false
 		
 		self.master:SetScript( "OnUpdate", nil )
