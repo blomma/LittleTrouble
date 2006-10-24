@@ -200,7 +200,7 @@ end
 function BigTrouble:OptionFontSpell( value )
 
     if type(value) == "nil" then return self.opt.Bar.spellSize end
-	self.opt.Bar.spellSize = v
+	self.opt.Bar.spellSize = value
 	self:Layout()
 	
 end
@@ -208,7 +208,7 @@ end
 function BigTrouble:OptionFontTime( value )
 
     if type(value) == "nil" then return self.opt.Bar.timeSize end
-	self.opt.Bar.timeSize = v
+	self.opt.Bar.timeSize = value
 	self:Layout()
 	
 end
@@ -216,7 +216,7 @@ end
 function BigTrouble:OptionFontDelay( value )
 
     if type(value) == "nil" then return self.opt.Bar.delaySize end
-	self.opt.Bar.delaySize = v
+	self.opt.Bar.delaySize = value
 	self:Layout()
 	
 end
