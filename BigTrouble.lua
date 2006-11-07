@@ -255,19 +255,17 @@ function BigTrouble:AimedShot()
 	aimedShot = true
 	
     local speedCurrent = UnitRangedDamage("player")
-    self:Debug("speedCurrent: ", speedCurrent)
     gratuity:SetInventoryItem("player", 18)
     local _, _, speedMax = gratuity:Find("([,%.%d]+)", nil, nil, true)
     
     -- Need to be done for our german clients, this should be localised for all clients.
+    -- Although now that i think about it, what other punctuations are used besides , and . for
+    -- numbers
     local speedMax = string.gsub( speedMax, ",", "." )
     
-    self:Debug("speedMax: ", speedMax)
     local speed = speedMax / speedCurrent
-    self:Debug("speed: ", speed)
 
     duration = ( 3.0 / speed ) + self.opt.aimedDelay
-    self:Debug("duration: ", duration)
 	self.master.Bar:SetStatusBarColor( Colors.aimedShot.r, Colors.aimedShot.g, Colors.aimedShot.b )
 	self:BarCreate(L["Aimed Shot"])
 
