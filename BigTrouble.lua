@@ -257,7 +257,11 @@ function BigTrouble:AimedShot()
     local speedCurrent = UnitRangedDamage("player")
     self:Debug("speedCurrent: ", speedCurrent)
     gratuity:SetInventoryItem("player", 18)
-    _, _, speedMax = gratuity:Find("([,%.%d]+)", nil, nil, true)
+    local _, _, speedMax = gratuity:Find("([,%.%d]+)", nil, nil, true)
+    
+    -- Need to be done for our german clients, this should be localised for all clients.
+    local speedMax = string.gsub( speedMax, ",", "." )
+    
     self:Debug("speedMax: ", speedMax)
     local speed = speedMax / speedCurrent
     self:Debug("speed: ", speed)
