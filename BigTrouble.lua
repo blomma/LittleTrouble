@@ -257,7 +257,7 @@ function BigTrouble:AimedShot()
     local speedCurrent = UnitRangedDamage("player")
     self:Debug("speedCurrent: ", speedCurrent)
     gratuity:SetInventoryItem("player", 18)
-    _, _, speedMax = gratuity:Find("([%.%d]+)", nil, nil, true)
+    _, _, speedMax = gratuity:Find("([,%.%d]+)", nil, nil, true)
     self:Debug("speedMax: ", speedMax)
     local speed = speedMax / speedCurrent
     self:Debug("speed: ", speed)
