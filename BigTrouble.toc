@@ -2,7 +2,9 @@
 
 ## Title: BigTrouble |cff7fff7f -Ace2-|r
 ## Title-koKR: |CFF669900B|CFFFFFFFFig|CFF669900T|CFFFFFFFFrouble |cff7fff7f -Ace2-|r
+## Title-zhCN:|cff7fff7f-Ace2-|r BigTrouble 
 ## Notes: A cast bar for AimedShot and AutoShot
+## Notes-zhCN: 一个瞄准射击和自动射击的计时条
 ## Author: Fleetfoot of Laughing Skull
 ## Version: 1.0.$Revision$
 ## X-Date: $Date$
@@ -29,4 +31,5 @@ BigTrouble.lua
 BigTrouble-enUS.lua
 BigTrouble-deDE.lua
 BigTrouble-koKR.lua
+BigTrouble-zhCN.lua
 BigTroubleOptions.lua
