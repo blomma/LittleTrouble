@@ -1,8 +1,8 @@
 --[[
-    A big thanks to otravi and his castingbar, most of the bar code is taken 
+	A big thanks to otravi and his castingbar, most of the bar code is taken 
 	from his addon and warped for my evil purposes here.
-    
-    Textures for the castbar taken from agUF and oCB
+	
+	Textures for the castbar taken from agUF and oCB
 --]]
 
 
@@ -10,89 +10,337 @@ local Colors =
 {
 	complete	= {r=0, g=1, b=0},
 	autoShot	= {r=1, g=.7, b=0},
-	aimedShot	= {r=.3, g=.3, b=1},
+	casting		= {r=.3, g=.3, b=1},
 	failed		= {r=1, g=0, b=0},
 }
 
-local Textures  =
-{
-	["Perl"]    = "Interface\\AddOns\\BigTrouble\\textures\\perl",
-	["Smooth"]	= "Interface\\AddOns\\BigTrouble\\textures\\smooth",
-	["Glaze"]	= "Interface\\AddOns\\BigTrouble\\textures\\glaze",
-	["Default"]	= "Interface\\TargetingFrame\\UI-StatusBar",
-    ["BantoBar"]    = "Interface\\AddOns\\BigTrouble\\textures\\BantoBar",
-    ["Gloss"] 	= "Interface\\AddOns\\BigTrouble\\textures\\Gloss",
+local delayString, delayTime
+
+local L = AceLibrary("AceLocale-2.2"):new("BigTrouble")
+local surface = AceLibrary("Surface-1.0")
+
+surface:Register("Perl", "Interface\\AddOns\\BigTrouble\\textures\\perl")
+surface:Register("Smooth", "Interface\\AddOns\\BigTrouble\\textures\\smooth")
+surface:Register("Glaze", "Interface\\AddOns\\BigTrouble\\textures\\glaze")
+surface:Register("BantoBar", "Interface\\AddOns\\BigTrouble\\textures\\BantoBar")
+surface:Register("Gloss", "Interface\\AddOns\\BigTrouble\\textures\\Gloss")
+
+BigTrouble = AceLibrary("AceAddon-2.0"):new("AceEvent-2.0", "AceDebug-2.0", "AceDB-2.0", "AceConsole-2.0")
+
+BigTrouble.defaults = {
+    width		= 255,
+    height		= 25,
+    timeSize	= 12,
+    spellSize	= 12,
+    delaySize	= 14,
+    border		= true,
+    texture		= "BantoBar",
+    pos			= {},
+    autoShotBar = true,
+    aimedShotBar	= true,
+    locked			= false
 }
 
-local startTime, endTime, delay, duration
-local aimedShot, autoShot, spellFailed, skipSpellCastStop
-local thresHold, delayString
+BigTrouble.options = {
+	type = "group",
+	args = {
+        [L["autoshot"]] = {
+            name = L["autoshot"],
+            type = "toggle",
+            desc = L["Toggle Auto Shot casting bar."],
+            get = function() return BigTrouble.db.profile.autoShotBar end,
+            set = "SetAutoShot",
+            map = {[false] = L["Off"], [true] = L["On"]},
+        },
+        [L["aimedshot"]] = {
+            name = L["aimedshot"],
+            type = "toggle",
+            desc = L["Toggle Aimed Shot casting bar."],
+            get = function() return BigTrouble.db.profile.aimedShotBar end,
+            set = function(v) BigTrouble.db.profile.aimedShotBar = v end,
+            map = {[false] = L["Off"], [true] = L["On"]},
+        },
+        [L["lock"]] = {
+            name = L["lock"],
+            type = "toggle",
+            desc = L["Lock/Unlock the casting bar."],
+            get = function() return BigTrouble.db.profile.locked end,
+            set = "SetLocked",
+            map = {[false] = L["Unlocked"], [true] = L["Locked"]},
+            guiNameIsMap = true,
+        },
+        [L["texture"]] = {
+            name = L["texture"], 
+            type = "text",
+            desc = L["Set the texture."],
+            get = function() return BigTrouble.db.profile.texture end,
+            set = function(v)
+                BigTrouble.db.profile.texture = v
+                BigTrouble:Layout()
+            end,
+            validate = surface:List(),
+        },
+        [L["border"]] = {
+            name = L["border"],
+            type = "toggle",
+            desc = L["Toggle the border."],
+            get = function() return BigTrouble.db.profile.border end,
+            set = function(v) 
+                BigTrouble.db.profile.border = v 
+                BigTrouble:Layout()
+            end,
+            map = {[false] = L["Off"], [true] = L["On"]},
+            guiNameIsMap = true,
+        },
+        [L["width"]] = {
+            name = L["width"], 
+            type = "range", 
+            min = 10, 
+            max = 500, 
+            step = 1,
+            desc = L["Set the width of the casting bar."],
+            get = function() return BigTrouble.db.profile.width end,
+            set = function(v)
+                BigTrouble.db.profile.width = v
+                BigTrouble:Layout()
+            end,
+        },
+        [L["height"]] = {
+            name = L["height"], 
+            type = "range", 
+            min = 5, 
+            max = 50, 
+            step = 1,
+            desc = L["Set the height of the casting bar."],
+            get = function() return BigTrouble.db.profile.height end,
+            set = function(v)
+                BigTrouble.db.profile.height = v
+                BigTrouble:Layout()
+            end,
+        },
+        [L["font"]] = {
+            name = L["font"],
+            type = "group",
+            desc = L["Set the font size of different elements."],
+            args = {
+                [L["spell"]] = {
+                    name = L["spell"], 
+                    type = "range", 
+                    min = 6,
+                    max = 32,
+                    step = 1,
+                    desc = L["Set the font size of the spellname."],
+                    get = function() return BigTrouble.db.profile.spellSize end,
+                    set = function(v)
+                        BigTrouble.db.profile.spellSize = v
+                        BigTrouble:Layout()
+                    end,
+                },
+                [L["time"]] = {
+                    name = L["time"], 
+                    type = "range", 
+                    min = 6, 
+                    max = 32, 
+                    step = 1,
+                    desc = L["Set the font size of the spell time."],
+                    get = function() return BigTrouble.db.profile.timeSize end,
+                    set = function(v)
+                        BigTrouble.db.profile.timeSize = v
+                        BigTrouble:Layout()
+                    end,
+                },
+                [L["delay"]] = {
+                    name = L["delay"], 
+                    type = "range", 
+                    min = 6,
+                    max = 32,
+                    step = 1,
+                    desc = L["Set the font size on the delay time."],
+                    get = function() return BigTrouble.db.profile.delaySize end,
+                    set = function(v)
+                        BigTrouble.db.profile.delaySize = v
+                        BigTrouble:Layout()
+                    end,
+                }
+            }
+		}
+	}
+}
 
-BigTrouble = AceLibrary("AceAddon-2.0"):new("AceEvent-2.0", "AceDebug-2.0", "AceHook-2.1", "AceDB-2.0", "AceConsole-2.0")
-local L = AceLibrary("AceLocale-2.2"):new("BigTrouble")
-local gratuity = AceLibrary("Gratuity-2.0")
-local gratuityTextLeft1 = gratuity.vars.Llines[1]
+function BigTrouble:SetAutoShot( value )
+	self.db.profile.autoShotBar = value
+    
+    if( value ) then
+        self:RegisterEvent("START_AUTOREPEAT_SPELL", "StartAutoRepeat")
+        self:RegisterEvent("STOP_AUTOREPEAT_SPELL", "StopAutoRepeat")
+    else
+        if( self:IsEventRegistered("START_AUTOREPEAT_SPELL")) then
+            self:UnregisterEvent("START_AUTOREPEAT_SPELL")
+        end
+        
+        if( self:IsEventRegistered("STOP_AUTOREPEAT_SPELL")) then
+            self:UnregisterEvent("STOP_AUTOREPEAT_SPELL")
+        end
+    end
+end
+
+function BigTrouble:SetLocked( value )
+    self.db.profile.locked = value
+
+	if( value ) then
+		self.master:Hide()
+		self.master:SetScript( "OnUpdate", self.OnUpdate )
+	else
+		self.isAutoShot = false
+		self.isCasting = false
+		
+		self.master:SetScript( "OnUpdate", nil )
+		self.master:Show()
+		self.master.Bar:SetStatusBarColor(.3, .3, .3)
+		self.master.Time:SetText("1.3")
+		self.master.Delay:SetText("+0.8")
+		self.master.Spell:SetText(L["Son of a bitch must pay!"])
+	end
+end
+
+BigTrouble:RegisterDB("BigTroubleDB")
+BigTrouble:RegisterDefaults('profile', BigTrouble.defaults)
+BigTrouble:RegisterChatCommand( {"/btrouble"}, BigTrouble.options )
 
 function BigTrouble:OnInitialize()
+	self.options.args[L["texture"]].validate = surface:List()
+	self:RegisterEvent("Surface_Registered", function()
+        self.options.args[L["texture"]].validate = surface:List()
+	end)
 
-	self:RegisterDB("BigTroubleDB")
-	self:RegisterChatCommand( {"/btrouble"}, self.options )
-	self:RegisterDefaults('profile', {
-	    Bar = {
-			width		= 255,
-			height		= 25,
-			timeSize	= 12,
-			spellSize	= 12,
-			delaySize	= 14,
-			border		= true,
-            texture	    = "Default",
-	    },
-	    aimedDelay	= 0.35,
-		pos			= {},
-		autoShotBar	= true,
-		aimedShotBar	= true
-	})
-	
 	self:SetDebugging(false)
-
 end
 
 function BigTrouble:OnEnable()
-
-	self.locked = true
-	self.opt = self.db.profile
-    
 	self:CreateFrameWork()
 
-	self:RegisterEvent("START_AUTOREPEAT_SPELL", function() autoShot = true end)
-	self:RegisterEvent("STOP_AUTOREPEAT_SPELL", function() autoShot = false end)
-	self:RegisterEvent("SPELLCAST_INTERRUPTED","SpellFailed")
-	self:RegisterEvent("SPELLCAST_FAILED", "SpellFailed")
-	self:RegisterEvent("SPELLCAST_DELAYED", "SpellCastDelayed")
-	self:RegisterEvent("SPELLCAST_STOP", "SpellCastStop")
-	self:RegisterEvent("PLAYER_ENTERING_WORLD", "PlayerEnteringWorld")
+    self:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED", "SpellCastSucceeded")
+    
+    if( self.db.profile.autoShotBar ) then
+        self:RegisterEvent("START_AUTOREPEAT_SPELL", "StartAutoRepeat")
+        self:RegisterEvent("STOP_AUTOREPEAT_SPELL", "StopAutoRepeat")
+    end
+    
+    self:RegisterEvent("UNIT_SPELLCAST_START", "SpellCastStart")
+	self:RegisterEvent("UNIT_SPELLCAST_INTERRUPTED","SpellCastFailed")
+	self:RegisterEvent("UNIT_SPELLCAST_DELAYED", "SpellCastDelayed")
+	self:RegisterEvent("UNIT_SPELLCAST_FAILED", "SpellCastFailed")
+end
 
-	self:Hook("UseAction")
-	self:Hook("CastSpell")
-	self:Hook("CastSpellByName")
+function BigTrouble:SpellCastStart( unit )
+	if( unit ~= "player" ) then return end	
+    if( not self.db.profile.aimedShotBar ) then thresHold = true return end
+	local name, _, text, _, startTime, endTime, _ = UnitCastingInfo(unit)
+	if( name ~= L["Aimed Shot"] ) then return end
+    
+	self.master.Bar:SetStatusBarColor( Colors.casting.r, Colors.casting.g, Colors.casting.b )
 	
+	self.startTime = startTime / 1000
+	self.maxValue = endTime / 1000
+	self.isCasting = true
+	self:BarCreate( text )
+end
+
+function BigTrouble:SpellCastSucceeded( unit, spell, rank )
+	if( unit ~= "player" ) then return end
+    if( spell ~= L["Aimed Shot"] and spell ~= L["Auto Shot"] ) then return end
+
+    if( self.isCasting ) then self.isCasting = nil end
+    
+    if( self.master:IsShown() ) then
+		self.master.Spark:Hide()
+		self.master.Time:Hide()
+        self.master.Delay:Hide()
+        
+		self.master.Bar:SetValue( self.maxValue )
+		self.master.Bar:SetStatusBarColor( Colors.complete.r, Colors.complete.g, Colors.complete.b )
+    end
+        
+    if( self.db.profile.autoShotBar ) then
+        self.startTime = GetTime()
+        self.maxValue = self.startTime + UnitRangedDamage("player")
+                
+        self.master.Bar:SetStatusBarColor( Colors.autoShot.r, Colors.autoShot.g, Colors.autoShot.b )
+        self:BarCreate(L["Auto Shot"])
+    end
+end
+
+function BigTrouble:SpellCastFailed(unit)
+	if( unit ~= "player" ) then return end
+	self:Debug( event, unit )
+	 
+	if( self.isCasting and self.master:IsShown() ) 
+        then self.isCasting = nil
+    
+		self.master.Spark:Hide()
+		self.master.Time:Hide()
+        self.master.Delay:Hide()
+
+		self.master.Bar:SetValue( self.maxValue )
+		self.master.Bar:SetStatusBarColor( Colors.failed.r, Colors.failed.g, Colors.failed.b )
+		self.master.Spell:SetText(L[event])
+	end
+end
+
+function BigTrouble:SpellCastDelayed( unit )
+	if( unit ~= "player" ) then return end
+ 
+ 	if( self.master:IsShown() and self.isCasting ) then
+		local _, _, _, _, startTime, endTime, _, oldStart = UnitCastingInfo(unit)
+		
+        oldStart = self.startTime
+		self.startTime = startTime / 1000
+		self.maxValue = endTime / 1000
+		
+		delayTime = (delayTime or 0) + ( self.startTime - oldStart )
+		delayString = "+"..string.format( "%.1f", delayTime )
+        
+        self.master.Delay:Show()
+		self.master.Bar:SetMinMaxValues( self.startTime, self.maxValue )
+	end
+end
+ 
+function BigTrouble:StartAutoRepeat()
+	self.isAutoShot = true
+end
+
+function BigTrouble:StopAutoRepeat()
+	self.isAutoShot = nil
+end
+
+function BigTrouble:BarCreate(s)
+	self.master.Bar:SetMinMaxValues( self.startTime, self.maxValue )
+	self.master.Bar:SetValue( self.startTime )
+	self.master.Spell:SetText(s)
+	self.master:SetAlpha(1)
+	self.master.Time:SetText("")
+	self.master.Delay:SetText("")
+    
+    thresHold = nil
+    delayTime = nil
+    
+	self.master:Show()
+	self.master.Spark:Show()
+    self.master.Time:Show()
 end
 
 function BigTrouble:SavePosition()
-
 	local x, y = self.master:GetLeft(), self.master:GetTop()
 	local s = self.master:GetEffectiveScale()
 
-	self.opt.pos.x = x * s
-	self.opt.pos.y = y * s
-
+	self.db.profile.pos.x = x * s
+	self.db.profile.pos.y = y * s
 end
 
 function BigTrouble:SetPosition()
-
-	if self.opt.pos.x then
-		local x = self.opt.pos.x
-		local y = self.opt.pos.y
+	if self.db.profile.pos.x then
+		local x = self.db.profile.pos.x
+		local y = self.db.profile.pos.y
 	
 		local s = self.master:GetEffectiveScale()
 
@@ -102,40 +350,36 @@ function BigTrouble:SetPosition()
 		self.master:ClearAllPoints()
 		self.master:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
 	end
-
 end
 
 function BigTrouble:CreateFrameWork()
-
 	self.master = CreateFrame("Frame", "BigTroubleFrame", UIParent)
 	self.master:Hide()
-    
-	self.master:SetScript( "OnUpdate", self.OnUpdate )
+	
+	self.master:SetScript( "OnUpdate", self.OnCasting )
 	self.master:SetMovable(true)
 	self.master:EnableMouse(true)
 	self.master:RegisterForDrag("LeftButton")
-	self.master:SetScript("OnDragStart", function() if not self.locked then self["master"]:StartMoving() end end)
+	self.master:SetScript("OnDragStart", function() if not self.db.profile.locked then self["master"]:StartMoving() end end)
 	self.master:SetScript("OnDragStop", function() self["master"]:StopMovingOrSizing() self:SavePosition() end)
 
-	self.master.Bar   = CreateFrame("StatusBar", nil, self.master)
+	self.master.Bar	  = CreateFrame("StatusBar", nil, self.master)
 	self.master.Spark = self.master.Bar:CreateTexture(nil, "OVERLAY")
 	self.master.Time  = self.master.Bar:CreateFontString(nil, "OVERLAY")
 	self.master.Spell = self.master.Bar:CreateFontString(nil, "OVERLAY")
 	self.master.Delay = self.master.Bar:CreateFontString(nil, "OVERLAY")
-    
-    self:Layout()
-
+	
+	self:Layout()
 end
 
 function BigTrouble:Layout()
-
 	local gameFont, _, _ = GameFontHighlightSmall:GetFont()
-    
-	self.master:SetWidth( self.opt.Bar.width + 9 )
-	self.master:SetHeight( self.opt.Bar.height + 10 )
+	
+	self.master:SetWidth( self.db.profile.width + 9 )
+	self.master:SetHeight( self.db.profile.height + 10 )
 
-    local edgeFile, edgeSize
-	if self.opt.Bar.border then 
+	local edgeFile, edgeSize
+	if self.db.profile.border then 
 		edgeFile, edgeSize = "Interface\\Tooltips\\UI-Tooltip-Border", 16 
 	end
 	
@@ -143,178 +387,67 @@ function BigTrouble:Layout()
 		bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", tile = true, tileSize = 16,
 		edgeFile = edgeFile or "", 
 		edgeSize = edgeSize or "",
-		insets = {left = 5, right = 5, top = 5, bottom = 5},
+		insets = {left = 4, right = 4, top = 4, bottom = 4},
 	})
 
-    self.master:SetBackdropBorderColor(TOOLTIP_DEFAULT_COLOR.r, TOOLTIP_DEFAULT_COLOR.g, TOOLTIP_DEFAULT_COLOR.b)
-	self.master:SetBackdropColor(TOOLTIP_DEFAULT_BACKGROUND_COLOR.r, TOOLTIP_DEFAULT_BACKGROUND_COLOR.g, TOOLTIP_DEFAULT_BACKGROUND_COLOR.b)
+	self.master:SetBackdropBorderColor(0, 0, 0)
+	self.master:SetBackdropColor(0, 0, 0)
 
 	self.master.Bar:ClearAllPoints()
 	self.master.Bar:SetPoint("CENTER", self.master, "CENTER", 0, 0)
-	self.master.Bar:SetWidth( self.opt.Bar.width )
-	self.master.Bar:SetHeight( self.opt.Bar.height )
-	self.master.Bar:SetStatusBarTexture( Textures[self.opt.Bar.texture] )
+	self.master.Bar:SetWidth( self.db.profile.width )
+	self.master.Bar:SetHeight( self.db.profile.height )
+	self.master.Bar:SetStatusBarTexture( surface:Fetch( self.db.profile.texture ))
 
 	self.master.Spark:SetTexture("Interface\\CastingBar\\UI-CastingBar-Spark")
 	self.master.Spark:SetWidth(16)
-	self.master.Spark:SetHeight( self.opt.Bar.height + 25 )
+	self.master.Spark:SetHeight( self.db.profile.height*2.44 )
 	self.master.Spark:SetBlendMode("ADD")
 
 	self.master.Time:SetJustifyH("RIGHT")
-	self.master.Time:SetFont( gameFont, self.opt.Bar.timeSize )
+	self.master.Time:SetFont( gameFont, self.db.profile.timeSize )
 	self.master.Time:SetText("X.Y")
 	self.master.Time:ClearAllPoints()
 	self.master.Time:SetPoint("RIGHT", self.master.Bar, "RIGHT",-10,0)
+	self.master.Time:SetShadowOffset(.8, -.8)
+	self.master.Time:SetShadowColor(0, 0, 0, 1)
 
 	self.master.Spell:SetJustifyH("CENTER")
-	self.master.Spell:SetWidth( self.opt.Bar.width - self.master.Time:GetWidth() )
-	self.master.Spell:SetFont( gameFont, self.opt.Bar.spellSize )
+	self.master.Spell:SetWidth( self.db.profile.width - self.master.Time:GetWidth() )
+	self.master.Spell:SetFont( gameFont, self.db.profile.spellSize )
 	self.master.Spell:ClearAllPoints()
 	self.master.Spell:SetPoint("LEFT", self.master, "LEFT",10,0)
+	self.master.Spell:SetShadowOffset(.8, -.8)
+	self.master.Spell:SetShadowColor(0, 0, 0, 1)
 
-	self.master.Delay:SetTextColor(1,0,0,1)
 	self.master.Delay:SetJustifyH("RIGHT")
-	self.master.Delay:SetFont( gameFont, self.opt.Bar.delaySize )
+	self.master.Delay:SetFont( gameFont, self.db.profile.delaySize )
+	self.master.Delay:SetTextColor(1,0,0,1)
 	self.master.Delay:SetText("X.Y")
 	self.master.Delay:ClearAllPoints()
 	self.master.Delay:SetPoint("TOPRIGHT", self.master.Bar, "TOPRIGHT",-10,20)
+	self.master.Delay:SetShadowOffset(.8, -.8)
+	self.master.Delay:SetShadowColor(0, 0, 0, 1)
 
 	self:SetPosition()
-
 end
 
-function BigTrouble:UseAction( id, book, onself )
-
-	spellFailed = false
-	self.hooks["UseAction"]( id, book, onself )
-	if spellFailed then return end
-
-	gratuity:SetAction( id )
-	local name = gratuityTextLeft1:GetText()
-    
-	if( name == L["Aimed Shot"] ) then
-		if not aimedShot then
-			self:AimedShot()
-		end
-	elseif( name ~= L["Auto Shot"] ) then
-		skipSpellCastStop = true
-	end
-
-end
-
-function BigTrouble:CastSpell( id, book )
-
-	spellFailed = false
-	self.hooks["CastSpell"]( id, book )
-	if spellFailed then return end
-
-	local name = GetSpellName( id, book )
-    
-	if( name == L["Aimed Shot"] ) then
-		if not aimedShot then
-			self:AimedShot()
-		end
-	elseif( name ~= L["Auto Shot"] ) then
-		skipSpellCastStop = true
-	end
-
-end
-
-function BigTrouble:CastSpellByName( spellName )
-
-	spellFailed = false
-	self.hooks["CastSpellByName"]( spellName )
-	if spellFailed then return end
-
-	local _, _, name = string.find( spellName, "([%w%s]+)" )
-    
-	if( name == L["Aimed Shot"] ) then
-		if not aimedShot then
-			self:AimedShot()
-		end
-	elseif( name ~= L["Auto Shot"] ) then
-		skipSpellCastStop = true
-	end
-
-end
-
---[[
-	My appology neronix. The duration code down below was 
-	blantanly stolen from neronix, i did so without concern or consideration
-	for his feeling. I could at this point say that im sorry and it wont happen
-	again, but knowing what an evil git i am that would prolly be a lie.
-	But i can say that it is a clever solution to the haste problem and you deserve
-	kudos for thinking of it neronix.
---]]
-
-function BigTrouble:AimedShot()
-
-	skipSpellCastStop = true
-    if not self.opt.aimedShotBar then return end
-    
-	aimedShot = true
-	
-    local speedCurrent = UnitRangedDamage("player")
-    gratuity:SetInventoryItem("player", 18)
-    local _, _, speedMax = gratuity:Find("([,%.%d]+)", nil, nil, true)
-    
-    -- Need to be done for our german clients, this should be localised for all clients.
-    -- Although now that i think about it, what other punctuations are used besides , and . for
-    -- numbers
-    local speedMax = string.gsub( speedMax, ",", "." )
-    
-    local speed = speedMax / speedCurrent
-
-    duration = ( 3.0 / speed ) + self.opt.aimedDelay
-	self.master.Bar:SetStatusBarColor( Colors.aimedShot.r, Colors.aimedShot.g, Colors.aimedShot.b )
-	self:BarCreate(L["Aimed Shot"])
-
-end
-
-function BigTrouble:BarCreate(s)
-
-	if( s == L["Auto Shot"] and not self.opt.autoShotBar ) then return end
-	if( s == L["Aimed Shot"] and not self.opt.aimedShotBar ) then return end
-
-	startTime = GetTime()
-	endTime = startTime + duration
-
-	self.master.Bar:SetMinMaxValues( startTime, endTime )
-	self.master.Bar:SetValue( startTime )
-	self.master.Spell:SetText(s)
-	self.master:SetAlpha(1)
-	self.master.Time:SetText("")
-	self.master.Delay:SetText("")
-
-	delay = 0
-	thresHold = false
-
-	self.master:Show()
-	self.master.Spark:Show()
-
-end
-
-function BigTrouble:OnUpdate()
-
-	if( ( aimedShot or autoShot ) and not thresHold ) then
+function BigTrouble:OnCasting()
+	if( ( BigTrouble.isCasting or BigTrouble.isAutoShot ) and not thresHold ) then
 		local currentTime = GetTime()
-	
-		if( currentTime > endTime ) then
-			currentTime = endTime
-			thresHold = true
-
-			if( aimedShot ) then
-                aimedShot = false
-                BigTrouble.master.Bar:SetStatusBarColor( Colors.complete.r, Colors.complete.g, Colors.complete.b )
-            end
+		
+		if( currentTime > BigTrouble.maxValue ) then
+			currentTime = BigTrouble.maxValue
+            thresHold = true
 		end
-
-		BigTrouble.master.Time:SetText( string.format( "%.1f", ( endTime - currentTime )))
-		if( delay ~= 0 ) then BigTrouble.master.Delay:SetText( delayString ) end
-		BigTrouble.master.Bar:SetValue( currentTime )
-
-		local sparkProgress = (( currentTime - startTime ) / ( endTime - startTime )) * BigTrouble.opt.Bar.width
+		
+		BigTrouble.master.Bar:SetValue( currentTime )		
+		local sparkProgress = (( currentTime - BigTrouble.startTime ) / ( BigTrouble.maxValue - BigTrouble.startTime )) * BigTrouble.db.profile.width
 		BigTrouble.master.Spark:SetPoint("CENTER", BigTrouble.master.Bar, "LEFT", sparkProgress, 0)
+		
+		BigTrouble.master.Time:SetText( string.format( "%.1f", ( BigTrouble.maxValue - currentTime )))
+		if( delayTime ~= nil ) then BigTrouble.master.Delay:SetText( delayString ) end
+
 	else
 		local a = BigTrouble.master:GetAlpha() - .05
 
@@ -322,83 +455,21 @@ function BigTrouble:OnUpdate()
 			BigTrouble.master:SetAlpha(a)
 		else
 			BigTrouble.master:Hide()
-			BigTrouble.master.Time:SetText("")
-			BigTrouble.master.Delay:SetText("")
 			BigTrouble.master:SetAlpha(1)
 		end
 	end
-
 end
 
 --[[
 	Stupid fix for reseting state when zoning and AutoShot or
 	Aimed Shot is casting
 --]]
-function BigTrouble:PlayerEnteringWorld()
+--function BigTrouble:PlayerEnteringWorld()
 
-	autoShot = false
-	aimedShot = false
+--	isAutoShot = false
+--	isCasting = false
 	
-	if( self.locked ) then self.master:Hide() end
+--	if( self.locked ) then self.master:Hide() end
 
-end
+--end
 
-function BigTrouble:SpellCastStop()
-
-	if( skipSpellCastStop ) then skipSpellCastStop = false return end
-
-	if( autoShot and not aimedShot ) then
-		duration = UnitRangedDamage("player")
-		self.master.Bar:SetStatusBarColor( Colors.autoShot.r, Colors.autoShot.g, Colors.autoShot.b )
-		self:BarCreate(L["Auto Shot"]) 
-	end
-
-end
-
-function BigTrouble:SpellFailed()
-
-	if event == "SPELLCAST_FAILED" then spellFailed = true end
-	
-	--[[
-		If we are still doing an Auto Shot while getting a here
-		it means we failed/interrupted either a Aimed Shot or a sting during a cycle
-		this we can safley ignore and just return from it.
-		
-		The exception to this being if were in the middle of an Aimed Shot and
-		were still also Auto Shoting
-	--]]
-	if autoShot and not aimedShot then return end
-    
-	aimedShot = false
-
-	--[[
-		We use this to check if we are actaully shooting anything, this since
-		autoShot is turned off before this event gets called and hence cannot
-		be used to check if we are doing something
-	--]]
-	if( self.master:IsShown() ) then
-		self.master.Spark:Hide()
-        
-		self.master.Bar:SetMinMaxValues( 0, duration + delay )
-		self.master.Bar:SetValue( duration + delay )
-		self.master.Bar:SetStatusBarColor( Colors.failed.r, Colors.failed.g, Colors.failed.b )
-		self.master.Spell:SetText(L[event])
-	end
-
-end
-
-function BigTrouble:SpellCastDelayed( d )
-
-	if( self.master:IsShown() ) then
-		d = d / 1000
-
-		startTime = startTime + d
-		endTime = endTime + d
-		delay = delay + d
-        
-        delayString = "+"..string.format( "%.1f", delay )
-        
-		self.master.Bar:SetMinMaxValues( startTime, endTime )
-	end
-
-end
