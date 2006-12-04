@@ -15,6 +15,7 @@ local Colors =
 }
 
 local delayString, delayTime
+local locked = true
 
 local L = AceLibrary("AceLocale-2.2"):new("BigTrouble")
 local surface = AceLibrary("Surface-1.0")
@@ -37,8 +38,7 @@ BigTrouble.defaults = {
     texture		= "BantoBar",
     pos			= {},
     autoShotBar = true,
-    aimedShotBar	= true,
-    locked			= false
+    aimedShotBar	= true
 }
 
 BigTrouble.options = {
@@ -64,7 +64,7 @@ BigTrouble.options = {
             name = L["lock"],
             type = "toggle",
             desc = L["Lock/Unlock the casting bar."],
-            get = function() return BigTrouble.db.profile.locked end,
+            get = function() return locked end,
             set = "SetLocked",
             map = {[false] = L["Unlocked"], [true] = L["Locked"]},
             guiNameIsMap = true,
@@ -185,22 +185,20 @@ function BigTrouble:SetAutoShot( value )
 end
 
 function BigTrouble:SetLocked( value )
-    self.db.profile.locked = value
+    locked = value
 
-	if( value ) then
-		self.master:Hide()
-		self.master:SetScript( "OnUpdate", self.OnUpdate )
-	else
-		self.isAutoShot = false
-		self.isCasting = false
-		
+    if( not value and not ( self.isCasting or self.isAutoShot )) then
+        BigTrouble:Debug("test")
 		self.master:SetScript( "OnUpdate", nil )
 		self.master:Show()
 		self.master.Bar:SetStatusBarColor(.3, .3, .3)
 		self.master.Time:SetText("1.3")
 		self.master.Delay:SetText("+0.8")
 		self.master.Spell:SetText(L["Son of a bitch must pay!"])
-	end
+    else
+		self.master:SetScript( "OnUpdate", self.OnCasting )
+    end
+    
 end
 
 BigTrouble:RegisterDB("BigTroubleDB")
@@ -360,7 +358,7 @@ function BigTrouble:CreateFrameWork()
 	self.master:SetMovable(true)
 	self.master:EnableMouse(true)
 	self.master:RegisterForDrag("LeftButton")
-	self.master:SetScript("OnDragStart", function() if not self.db.profile.locked then self["master"]:StartMoving() end end)
+	self.master:SetScript("OnDragStart", function() if not locked then self["master"]:StartMoving() end end)
 	self.master:SetScript("OnDragStop", function() self["master"]:StopMovingOrSizing() self:SavePosition() end)
 
 	self.master.Bar	  = CreateFrame("StatusBar", nil, self.master)
@@ -459,17 +457,3 @@ function BigTrouble:OnCasting()
 		end
 	end
 end
-
---[[
-	Stupid fix for reseting state when zoning and AutoShot or
-	Aimed Shot is casting
---]]
---function BigTrouble:PlayerEnteringWorld()
-
---	isAutoShot = false
---	isCasting = false
-	
---	if( self.locked ) then self.master:Hide() end
-
---end
-
