@@ -18,7 +18,6 @@
 # Libraries
 libs\AceLibrary\AceLibrary.lua
 libs\AceOO\AceOO-2.0.lua
-
 libs\AceAddon\AceAddon-2.0.lua
 libs\AceConsole\AceConsole-2.0.lua
 libs\AceDB\AceDB-2.0.lua

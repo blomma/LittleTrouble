@@ -230,9 +230,11 @@ function BigTrouble:OnEnable()
 	self:RegisterEvent("UNIT_SPELLCAST_FAILED", "SpellCastFailed")
 end
 
+-- Lots of if's and buts here, a rethink in the future is prolly called for
 function BigTrouble:SpellCastStart( unit )
-	if( unit ~= "player" ) then return end	
+	if( unit ~= "player" ) then return end
     if( not self.db.profile.aimedShotBar ) then thresHold = true return end
+    
 	local name, _, text, _, startTime, endTime, _ = UnitCastingInfo(unit)
 	if( name ~= L["Aimed Shot"] ) then return end
     
