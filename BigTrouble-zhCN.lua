@@ -3,8 +3,8 @@ L:RegisterTranslations("zhCN", function()
 return {
 	["Aimed Shot"] = "瞄准射击",
 	["Auto Shot"] = "自动射击",
-	["SPELLCAST_FAILED"] = "失败",
-	["SPELLCAST_INTERRUPTED"] = "被打断",
+	["UNIT_SPELLCAST_FAILED"] = "失败",
+	["UNIT_SPELLCAST_INTERRUPTED"] = "被打断",
 
 	["lock"] = "lock",
 	["Lock/Unlock the casting bar."] = "Lock/Unlock the casting bar.",

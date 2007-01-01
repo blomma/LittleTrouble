@@ -6,9 +6,9 @@ local L = AceLibrary("AceLocale-2.2"):new("BigTrouble")
 L:RegisterTranslations("deDE", function()
 return {
 	["Aimed Shot"] = "Gezielter Schuss",
-	["Auto Shot"] = "Autom. Schuss",
-	["SPELLCAST_FAILED"] = "Fehlgeschlagen",
-	["SPELLCAST_INTERRUPTED"] = "Unterbrochen",
+	["Auto Shot"] = "Automatischer Schuss",
+	["UNIT_SPELLCAST_FAILED"] = "Fehlgeschlagen",
+	["UNIT_SPELLCAST_INTERRUPTED"] = "Unterbrochen",
 
 	["lock"] = "lock",
 	["Lock/Unlock the casting bar."] = "Lock/Unlock the casting bar.",
