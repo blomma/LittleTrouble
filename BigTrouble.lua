@@ -14,7 +14,7 @@ local Colors =
 	failed		= {r=1, g=0, b=0},
 }
 
-local delayString, delayTime
+local delayString, delayTime, thresHold
 local locked = true
 
 local L = AceLibrary("AceLocale-2.2"):new("BigTrouble")
@@ -154,13 +154,13 @@ BigTrouble.options = {
 function BigTrouble:SetLocked( value )
 	locked = value
 
-	if( not value and not ( self.isCasting or self.isAutoShot )) then
+	if not value and not self.isAutoShot then
 		BigTrouble:Debug("test")
 		self.master:SetScript( "OnUpdate", nil )
 		self.master:Show()
 		self.master.Bar:SetStatusBarColor(.3, .3, .3)
 		self.master.Time:SetText("1.3")
-		self.master.Delay:SetText("+0.8")
+		--self.master.Delay:SetText("+0.8")
 		self.master.Spell:SetText(L["Son of a bitch must pay!"])
 	else
 		self.master:SetScript( "OnUpdate", self.OnCasting )
@@ -196,6 +196,7 @@ function BigTrouble:OnEnable()
 end
 
 function BigTrouble:SpellCastStart( unit )
+    self:Debug("SpellCastStart")
 	if unit ~= "player" then return end	
 	local name, _, _, _, _, _, _ = UnitCastingInfo(unit)
 	
@@ -205,8 +206,9 @@ function BigTrouble:SpellCastStart( unit )
 end
 
 function BigTrouble:SpellCastSucceeded( unit, spell, rank )
+    self:Debug("SpellCastSucceeded")
 	if unit ~= "player" then return end
-	if spell ~= L["Auto Shot"] or spell ~= L["Aimed Shot"] then return end
+	if spell ~= L["Auto Shot"] and spell ~= L["Aimed Shot"] then return end
 
 	-- if self.isAutoShot and self.master:IsShown() then
 	-- 	self.master.Spark:Hide()
@@ -225,10 +227,11 @@ function BigTrouble:SpellCastSucceeded( unit, spell, rank )
 end
 
 function BigTrouble:SpellCastFailed( unit )
+    self:Debug("SpellCastFailed")
 	if unit ~= "player" then return end
 	 
 	if self.isAutoShot and self.master:IsShown() then
-		self.thresHold = true
+		thresHold = true
 		self.master.Spark:Hide()
 		self.master.Time:Hide()
 		self.master.Delay:Hide()
@@ -266,7 +269,7 @@ function BigTrouble:StopAutoRepeat()
 end
 
 function BigTrouble:BarCreate(s)
-	self.thresHold = nil
+	thresHold = nil
 	self.master.Bar:SetMinMaxValues( self.startTime, self.maxValue )
 	self.master.Bar:SetValue( self.startTime )
 	self.master.Spell:SetText(s)
@@ -372,14 +375,14 @@ function BigTrouble:Layout()
 	self.master.Spell:SetShadowOffset(.8, -.8)
 	self.master.Spell:SetShadowColor(0, 0, 0, 1)
 
-	self.master.Delay:SetJustifyH("RIGHT")
-	self.master.Delay:SetFont( gameFont, self.db.profile.delaySize )
-	self.master.Delay:SetTextColor(1,0,0,1)
-	self.master.Delay:SetText("X.Y")
-	self.master.Delay:ClearAllPoints()
-	self.master.Delay:SetPoint("TOPRIGHT", self.master.Bar, "TOPRIGHT",-10,20)
-	self.master.Delay:SetShadowOffset(.8, -.8)
-	self.master.Delay:SetShadowColor(0, 0, 0, 1)
+--	self.master.Delay:SetJustifyH("RIGHT")
+--	self.master.Delay:SetFont( gameFont, self.db.profile.delaySize )
+--	self.master.Delay:SetTextColor(1,0,0,1)
+--	self.master.Delay:SetText("X.Y")
+--	self.master.Delay:ClearAllPoints()
+--	self.master.Delay:SetPoint("TOPRIGHT", self.master.Bar, "TOPRIGHT",-10,20)
+--	self.master.Delay:SetShadowOffset(.8, -.8)
+--	self.master.Delay:SetShadowColor(0, 0, 0, 1)
 
 	self:SetPosition()
 end
