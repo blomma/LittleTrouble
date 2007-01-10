@@ -6,15 +6,7 @@
 --]]
 
 
-local Colors = 
-{
-	complete	= {r=0, g=1, b=0},
-	autoShot	= {r=1, g=.7, b=0},
-	casting		= {r=.3, g=.3, b=1},
-	failed		= {r=1, g=0, b=0},
-}
-
-local delayString, delayTime, thresHold
+local delayString, delayTime, thresHold, fade
 local locked = true
 
 local L = AceLibrary("AceLocale-2.2"):new("BigTrouble")
@@ -37,8 +29,9 @@ BigTrouble.defaults = {
 	border		= true,
 	texture		= "BantoBar",
 	pos			= {},
-	autoShotBar = true,
-	aimedShotBar	= true
+    colors = {
+        autoshot	= {r=1, g=.7, b=0},
+    }
 }
 
 BigTrouble.options = {
@@ -147,20 +140,36 @@ BigTrouble.options = {
 					end,
 				}
 			}
-		}
-	}
+		},
+        [L["colors"]] = {
+            name = L["colors"], type = 'group', order = 4,
+            desc = L["Set the bar colors."],
+            args = {
+                [L["autoshot"]] = {
+                    name = L["autoshot"], type = 'color',
+                    desc = L["Sets the color of the auto shot bar."],
+                    get = function()
+                        local v = BigTrouble.db.profile.colors.autoshot
+                        return v.r,v.g,v.b
+                    end,
+                    set = function(r,g,b) 
+                        BigTrouble.db.profile.colors.autoshot = {r=r,g=g,b=b} 
+						BigTrouble:Layout()
+                    end
+                }
+            }
+        }
+    }
 }
 
 function BigTrouble:SetLocked( value )
 	locked = value
 
 	if not value and not self.isAutoShot then
-		BigTrouble:Debug("test")
 		self.master:SetScript( "OnUpdate", nil )
 		self.master:Show()
 		self.master.Bar:SetStatusBarColor(.3, .3, .3)
 		self.master.Time:SetText("1.3")
-		--self.master.Delay:SetText("+0.8")
 		self.master.Spell:SetText(L["Son of a bitch must pay!"])
 	else
 		self.master:SetScript( "OnUpdate", self.OnCasting )
@@ -190,14 +199,10 @@ function BigTrouble:OnEnable()
 	
 	self:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED", "SpellCastSucceeded")
 	self:RegisterEvent("UNIT_SPELLCAST_START", "SpellCastStart")
-	self:RegisterEvent("UNIT_SPELLCAST_INTERRUPTED","SpellCastFailed")
---	self:RegisterEvent("UNIT_SPELLCAST_DELAYED", "SpellCastDelayed")
-	self:RegisterEvent("UNIT_SPELLCAST_FAILED", "SpellCastFailed")
 end
 
 function BigTrouble:SpellCastStart( unit )
-    self:Debug("SpellCastStart")
-	if unit ~= "player" then return end	
+	if unit ~= "player" then return end
 	local name, _, _, _, _, _, _ = UnitCastingInfo(unit)
 	
 	if name == L["Aimed Shot"] then
@@ -206,65 +211,22 @@ function BigTrouble:SpellCastStart( unit )
 end
 
 function BigTrouble:SpellCastSucceeded( unit, spell, rank )
-    self:Debug("SpellCastSucceeded")
 	if unit ~= "player" then return end
 	if spell ~= L["Auto Shot"] and spell ~= L["Aimed Shot"] then return end
 
-	-- if self.isAutoShot and self.master:IsShown() then
-	-- 	self.master.Spark:Hide()
-	-- 	self.master.Time:Hide()
-	-- 	self.master.Delay:Hide()
-	-- 	
-	-- 	self.master.Bar:SetValue( self.maxValue )
-	-- 	self.master.Bar:SetStatusBarColor( Colors.complete.r, Colors.complete.g, Colors.complete.b )
-	-- end
-
 	self.startTime = GetTime()
-	self.maxValue = self.startTime + UnitRangedDamage("player")				
-	self.master.Bar:SetStatusBarColor( Colors.autoShot.r, Colors.autoShot.g, Colors.autoShot.b )
+	self.maxValue = self.startTime + UnitRangedDamage("player")
 	self.isAutoShot = true
 	self:BarCreate(L["Auto Shot"])
 end
 
-function BigTrouble:SpellCastFailed( unit )
-    self:Debug("SpellCastFailed")
-	if unit ~= "player" then return end
-	 
-	if self.isAutoShot and self.master:IsShown() then
-		thresHold = true
-		self.master.Spark:Hide()
-		self.master.Time:Hide()
-		self.master.Delay:Hide()
-
-		self.master.Bar:SetValue( self.maxValue )
-		self.master.Bar:SetStatusBarColor( Colors.failed.r, Colors.failed.g, Colors.failed.b )
-		self.master.Spell:SetText(L[event])
-	end
-end
-
--- function BigTrouble:SpellCastDelayed( unit )
--- 	if( unit ~= "player" ) then return end
---  
--- 	if( self.master:IsShown() and self.isCasting ) then
--- 		local _, _, _, _, startTime, endTime, _, oldStart = UnitCastingInfo(unit)
--- 		
--- 		oldStart = self.startTime
--- 		self.startTime = startTime / 1000
--- 		self.maxValue = endTime / 1000
--- 		
--- 		delayTime = (delayTime or 0) + ( self.startTime - oldStart )
--- 		delayString = "+"..string.format( "%.1f", delayTime )
--- 		
--- 		self.master.Delay:Show()
--- 		self.master.Bar:SetMinMaxValues( self.startTime, self.maxValue )
--- 	end
--- end
- 
 function BigTrouble:StartAutoRepeat()
+    fade = nil
 	self.isAutoShot = true
 end
 
 function BigTrouble:StopAutoRepeat()
+    fade = true
 	self.isAutoShot = nil
 end
 
@@ -275,10 +237,6 @@ function BigTrouble:BarCreate(s)
 	self.master.Spell:SetText(s)
 	self.master:SetAlpha(1)
 	self.master.Time:SetText("")
---	self.master.Delay:SetText("")
-	
---	delayTime = nil
-	
 	self.master:Show()
 	self.master.Spark:Show()
 	self.master.Time:Show()
@@ -287,20 +245,18 @@ end
 function BigTrouble:SavePosition()
 	local x, y = self.master:GetLeft(), self.master:GetTop()
 	local s = self.master:GetEffectiveScale()
-
-	self.db.profile.pos.x = x * s
-	self.db.profile.pos.y = y * s
+	local pos = self.db.profile.pos
+	pos.x = x * s
+	pos.y = y * s
 end
 
 function BigTrouble:SetPosition()
-	if self.db.profile.pos.x then
-		local x = self.db.profile.pos.x
-		local y = self.db.profile.pos.y
-	
+	local pos = self.db.profile.pos
+	if pos.x then
 		local s = self.master:GetEffectiveScale()
 
 		self.master:ClearAllPoints()
-		self.master:SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT", x / s, y / s)
+		self.master:SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT", pos.x / s, pos.y / s)
 	else
 		self.master:ClearAllPoints()
 		self.master:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
@@ -329,12 +285,13 @@ end
 
 function BigTrouble:Layout()
 	local gameFont, _, _ = GameFontHighlightSmall:GetFont()
+	local db = self.db.profile
 	
-	self.master:SetWidth( self.db.profile.width + 9 )
-	self.master:SetHeight( self.db.profile.height + 10 )
+	self.master:SetWidth( db.width + 9 )
+	self.master:SetHeight( db.height + 10 )
 
 	local edgeFile, edgeSize
-	if self.db.profile.border then 
+	if db.border then 
 		edgeFile, edgeSize = "Interface\\Tooltips\\UI-Tooltip-Border", 16 
 	end
 	
@@ -350,17 +307,18 @@ function BigTrouble:Layout()
 
 	self.master.Bar:ClearAllPoints()
 	self.master.Bar:SetPoint("CENTER", self.master, "CENTER", 0, 0)
-	self.master.Bar:SetWidth( self.db.profile.width )
-	self.master.Bar:SetHeight( self.db.profile.height )
-	self.master.Bar:SetStatusBarTexture( surface:Fetch( self.db.profile.texture ))
+	self.master.Bar:SetWidth( db.width )
+	self.master.Bar:SetHeight( db.height )
+	self.master.Bar:SetStatusBarTexture( surface:Fetch( db.texture ))
+	self.master.Bar:SetStatusBarColor( db.colors.autoshot.r, db.colors.autoshot.g, db.colors.autoshot.b )
 
 	self.master.Spark:SetTexture("Interface\\CastingBar\\UI-CastingBar-Spark")
 	self.master.Spark:SetWidth(16)
-	self.master.Spark:SetHeight( self.db.profile.height*2.44 )
+	self.master.Spark:SetHeight( db.height*2.44 )
 	self.master.Spark:SetBlendMode("ADD")
 
 	self.master.Time:SetJustifyH("RIGHT")
-	self.master.Time:SetFont( gameFont, self.db.profile.timeSize )
+	self.master.Time:SetFont( gameFont, db.timeSize )
 	self.master.Time:SetText("X.Y")
 	self.master.Time:ClearAllPoints()
 	self.master.Time:SetPoint("RIGHT", self.master.Bar, "RIGHT",-10,0)
@@ -368,21 +326,12 @@ function BigTrouble:Layout()
 	self.master.Time:SetShadowColor(0, 0, 0, 1)
 
 	self.master.Spell:SetJustifyH("CENTER")
-	self.master.Spell:SetWidth( self.db.profile.width - self.master.Time:GetWidth() )
-	self.master.Spell:SetFont( gameFont, self.db.profile.spellSize )
+	self.master.Spell:SetWidth( db.width - self.master.Time:GetWidth() )
+	self.master.Spell:SetFont( gameFont, db.spellSize )
 	self.master.Spell:ClearAllPoints()
 	self.master.Spell:SetPoint("LEFT", self.master, "LEFT",10,0)
 	self.master.Spell:SetShadowOffset(.8, -.8)
 	self.master.Spell:SetShadowColor(0, 0, 0, 1)
-
---	self.master.Delay:SetJustifyH("RIGHT")
---	self.master.Delay:SetFont( gameFont, self.db.profile.delaySize )
---	self.master.Delay:SetTextColor(1,0,0,1)
---	self.master.Delay:SetText("X.Y")
---	self.master.Delay:ClearAllPoints()
---	self.master.Delay:SetPoint("TOPRIGHT", self.master.Bar, "TOPRIGHT",-10,20)
---	self.master.Delay:SetShadowOffset(.8, -.8)
---	self.master.Delay:SetShadowColor(0, 0, 0, 1)
 
 	self:SetPosition()
 end
@@ -398,12 +347,9 @@ function BigTrouble:OnCasting()
 		
 		BigTrouble.master.Bar:SetValue( currentTime )		
 		local sparkProgress = (( currentTime - BigTrouble.startTime ) / ( BigTrouble.maxValue - BigTrouble.startTime )) * BigTrouble.db.profile.width
-		BigTrouble.master.Spark:SetPoint("CENTER", BigTrouble.master.Bar, "LEFT", sparkProgress, 0)
-		
+		BigTrouble.master.Spark:SetPoint("CENTER", BigTrouble.master.Bar, "LEFT", sparkProgress, 0)		
 		BigTrouble.master.Time:SetText( string.format( "%.1f", ( BigTrouble.maxValue - currentTime )))
---		if( delayTime ~= nil ) then BigTrouble.master.Delay:SetText( delayString ) end
-
-	else
+	elseif fade then
 		local a = BigTrouble.master:GetAlpha() - .05
 
 		if( a > 0 ) then
