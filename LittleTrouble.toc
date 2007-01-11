@@ -1,19 +1,18 @@
-## Interface: 20000
-
-## Title: BigTrouble |cff7fff7f -Ace2-|r
-## Notes: A casting bar for aimedshot and autoshot
+## Interface: 20003
+## Title: LittleTrouble |cff7fff7f -Ace2-|r
+## Notes: A cast bar for autoshot
 ## Author: Fleetfoot
-## Version: 2.0
+## Version: 1.0
 ## DefaultState: Enabled
-## OptionalDeps: Ace2
+## OptionalDeps: Ace2, SurfaceLib
 ## LoadOnDemand: 0
-## SavedVariables: BigTroubleDB
+## SavedVariables: LittleTroubleDB
+## X-License: GPL v2 or later
 
 ## X-Website: http://fleetfoot.wowinterface.com/
 ## X-Category: Hunter
-## X-Embeds: Ace2
+## X-Embeds: Ace2, SurfaceLib
 ## X-WoWIPortal: fleetfoot
-## X-RelSite-WoWI: 5192
 
 # Libraries
 libs\AceLibrary\AceLibrary.lua
@@ -27,8 +26,8 @@ libs\AceLocale\AceLocale-2.2.lua
 libs\SurfaceLib\Surface-1.0\Surface-1.0.lua
 
 # Addon
-BigTrouble-enUS.lua
-BigTrouble-deDE.lua
-BigTrouble-koKR.lua
-BigTrouble-zhCN.lua
-BigTrouble.lua
+LittleTrouble-enUS.lua
+LittleTrouble-deDE.lua
+LittleTrouble-koKR.lua
+LittleTrouble-zhCN.lua
+LittleTrouble.lua

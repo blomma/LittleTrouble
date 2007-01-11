@@ -9,18 +9,18 @@
 local delayString, delayTime, thresHold, fade
 local locked = true
 
-local L = AceLibrary("AceLocale-2.2"):new("BigTrouble")
+local L = AceLibrary("AceLocale-2.2"):new("LittleTrouble")
 local surface = AceLibrary("Surface-1.0")
 
-surface:Register("Perl", "Interface\\AddOns\\BigTrouble\\textures\\perl")
-surface:Register("Smooth", "Interface\\AddOns\\BigTrouble\\textures\\smooth")
-surface:Register("Glaze", "Interface\\AddOns\\BigTrouble\\textures\\glaze")
-surface:Register("BantoBar", "Interface\\AddOns\\BigTrouble\\textures\\BantoBar")
-surface:Register("Gloss", "Interface\\AddOns\\BigTrouble\\textures\\Gloss")
+surface:Register("Perl", "Interface\\AddOns\\LittleTrouble\\textures\\perl")
+surface:Register("Smooth", "Interface\\AddOns\\LittleTrouble\\textures\\smooth")
+surface:Register("Glaze", "Interface\\AddOns\\LittleTrouble\\textures\\glaze")
+surface:Register("BantoBar", "Interface\\AddOns\\LittleTrouble\\textures\\BantoBar")
+surface:Register("Gloss", "Interface\\AddOns\\LittleTrouble\\textures\\Gloss")
 
-BigTrouble = AceLibrary("AceAddon-2.0"):new("AceEvent-2.0", "AceDebug-2.0", "AceDB-2.0", "AceConsole-2.0")
+LittleTrouble = AceLibrary("AceAddon-2.0"):new("AceEvent-2.0", "AceDebug-2.0", "AceDB-2.0", "AceConsole-2.0")
 
-BigTrouble.defaults = {
+LittleTrouble.defaults = {
 	width		= 255,
 	height		= 25,
 	timeSize	= 12,
@@ -34,7 +34,7 @@ BigTrouble.defaults = {
     }
 }
 
-BigTrouble.options = {
+LittleTrouble.options = {
 	type = "group",
 	args = {
 		[L["lock"]] = {
@@ -50,10 +50,10 @@ BigTrouble.options = {
 			name = L["texture"], 
 			type = "text",
 			desc = L["Set the texture."],
-			get = function() return BigTrouble.db.profile.texture end,
+			get = function() return LittleTrouble.db.profile.texture end,
 			set = function(v)
-				BigTrouble.db.profile.texture = v
-				BigTrouble:Layout()
+				LittleTrouble.db.profile.texture = v
+				LittleTrouble:Layout()
 			end,
 			validate = surface:List(),
 		},
@@ -61,10 +61,10 @@ BigTrouble.options = {
 			name = L["border"],
 			type = "toggle",
 			desc = L["Toggle the border."],
-			get = function() return BigTrouble.db.profile.border end,
+			get = function() return LittleTrouble.db.profile.border end,
 			set = function(v) 
-				BigTrouble.db.profile.border = v 
-				BigTrouble:Layout()
+				LittleTrouble.db.profile.border = v 
+				LittleTrouble:Layout()
 			end,
 			map = {[false] = L["Off"], [true] = L["On"]},
 			guiNameIsMap = true,
@@ -76,10 +76,10 @@ BigTrouble.options = {
 			max = 500, 
 			step = 1,
 			desc = L["Set the width of the casting bar."],
-			get = function() return BigTrouble.db.profile.width end,
+			get = function() return LittleTrouble.db.profile.width end,
 			set = function(v)
-				BigTrouble.db.profile.width = v
-				BigTrouble:Layout()
+				LittleTrouble.db.profile.width = v
+				LittleTrouble:Layout()
 			end,
 		},
 		[L["height"]] = {
@@ -89,10 +89,10 @@ BigTrouble.options = {
 			max = 50, 
 			step = 1,
 			desc = L["Set the height of the casting bar."],
-			get = function() return BigTrouble.db.profile.height end,
+			get = function() return LittleTrouble.db.profile.height end,
 			set = function(v)
-				BigTrouble.db.profile.height = v
-				BigTrouble:Layout()
+				LittleTrouble.db.profile.height = v
+				LittleTrouble:Layout()
 			end,
 		},
 		[L["font"]] = {
@@ -107,10 +107,10 @@ BigTrouble.options = {
 					max = 32,
 					step = 1,
 					desc = L["Set the font size of the spellname."],
-					get = function() return BigTrouble.db.profile.spellSize end,
+					get = function() return LittleTrouble.db.profile.spellSize end,
 					set = function(v)
-						BigTrouble.db.profile.spellSize = v
-						BigTrouble:Layout()
+						LittleTrouble.db.profile.spellSize = v
+						LittleTrouble:Layout()
 					end,
 				},
 				[L["time"]] = {
@@ -120,25 +120,12 @@ BigTrouble.options = {
 					max = 32, 
 					step = 1,
 					desc = L["Set the font size of the spell time."],
-					get = function() return BigTrouble.db.profile.timeSize end,
+					get = function() return LittleTrouble.db.profile.timeSize end,
 					set = function(v)
-						BigTrouble.db.profile.timeSize = v
-						BigTrouble:Layout()
+						LittleTrouble.db.profile.timeSize = v
+						LittleTrouble:Layout()
 					end,
 				},
-				[L["delay"]] = {
-					name = L["delay"], 
-					type = "range", 
-					min = 6,
-					max = 32,
-					step = 1,
-					desc = L["Set the font size on the delay time."],
-					get = function() return BigTrouble.db.profile.delaySize end,
-					set = function(v)
-						BigTrouble.db.profile.delaySize = v
-						BigTrouble:Layout()
-					end,
-				}
 			}
 		},
         [L["colors"]] = {
@@ -149,12 +136,12 @@ BigTrouble.options = {
                     name = L["autoshot"], type = 'color',
                     desc = L["Sets the color of the auto shot bar."],
                     get = function()
-                        local v = BigTrouble.db.profile.colors.autoshot
+                        local v = LittleTrouble.db.profile.colors.autoshot
                         return v.r,v.g,v.b
                     end,
                     set = function(r,g,b) 
-                        BigTrouble.db.profile.colors.autoshot = {r=r,g=g,b=b} 
-						BigTrouble:Layout()
+                        LittleTrouble.db.profile.colors.autoshot = {r=r,g=g,b=b} 
+						LittleTrouble:Layout()
                     end
                 }
             }
@@ -162,7 +149,7 @@ BigTrouble.options = {
     }
 }
 
-function BigTrouble:SetLocked( value )
+function LittleTrouble:SetLocked( value )
 	locked = value
 
 	if not value and not self.isAutoShot then
@@ -177,22 +164,17 @@ function BigTrouble:SetLocked( value )
 	
 end
 
-BigTrouble:RegisterDB("BigTroubleDB")
-BigTrouble:RegisterDefaults('profile', BigTrouble.defaults)
-BigTrouble:RegisterChatCommand( {"/btrouble"}, BigTrouble.options )
+LittleTrouble:RegisterDB("LittleTroubleDB")
+LittleTrouble:RegisterDefaults('profile', LittleTrouble.defaults)
+LittleTrouble:RegisterChatCommand( {"/ltrouble"}, LittleTrouble.options )
 
-function BigTrouble:OnInitialize()
-	self.options.args[L["texture"]].validate = surface:List()
-	self:RegisterEvent("Surface_Registered", function()
-		self.options.args[L["texture"]].validate = surface:List()
-	end)
-
+function LittleTrouble:OnInitialize()
 	self:SetDebugging(false)
 end
 
-function BigTrouble:OnEnable()
+function LittleTrouble:OnEnable()
 	self:CreateFrameWork()
-
+    
 	-- Autoshot
 	self:RegisterEvent("START_AUTOREPEAT_SPELL", "StartAutoRepeat")
 	self:RegisterEvent("STOP_AUTOREPEAT_SPELL", "StopAutoRepeat")
@@ -201,7 +183,7 @@ function BigTrouble:OnEnable()
 	self:RegisterEvent("UNIT_SPELLCAST_START", "SpellCastStart")
 end
 
-function BigTrouble:SpellCastStart( unit )
+function LittleTrouble:SpellCastStart( unit )
 	if unit ~= "player" then return end
 	local name, _, _, _, _, _, _ = UnitCastingInfo(unit)
 	
@@ -210,31 +192,17 @@ function BigTrouble:SpellCastStart( unit )
 	end
 end
 
-function BigTrouble:SpellCastSucceeded( unit, spell, rank )
+function LittleTrouble:SpellCastSucceeded( unit, spell, rank )
 	if unit ~= "player" then return end
 	if spell ~= L["Auto Shot"] and spell ~= L["Aimed Shot"] then return end
 
 	self.startTime = GetTime()
 	self.maxValue = self.startTime + UnitRangedDamage("player")
 	self.isAutoShot = true
-	self:BarCreate(L["Auto Shot"])
-end
-
-function BigTrouble:StartAutoRepeat()
-    fade = nil
-	self.isAutoShot = true
-end
-
-function BigTrouble:StopAutoRepeat()
-    fade = true
-	self.isAutoShot = nil
-end
-
-function BigTrouble:BarCreate(s)
 	thresHold = nil
 	self.master.Bar:SetMinMaxValues( self.startTime, self.maxValue )
 	self.master.Bar:SetValue( self.startTime )
-	self.master.Spell:SetText(s)
+	self.master.Spell:SetText(L["Auto Shot"])
 	self.master:SetAlpha(1)
 	self.master.Time:SetText("")
 	self.master:Show()
@@ -242,7 +210,17 @@ function BigTrouble:BarCreate(s)
 	self.master.Time:Show()
 end
 
-function BigTrouble:SavePosition()
+function LittleTrouble:StartAutoRepeat()
+    fade = nil
+	self.isAutoShot = true
+end
+
+function LittleTrouble:StopAutoRepeat()
+    fade = true
+	self.isAutoShot = nil
+end
+
+function LittleTrouble:SavePosition()
 	local x, y = self.master:GetLeft(), self.master:GetTop()
 	local s = self.master:GetEffectiveScale()
 	local pos = self.db.profile.pos
@@ -250,7 +228,7 @@ function BigTrouble:SavePosition()
 	pos.y = y * s
 end
 
-function BigTrouble:SetPosition()
+function LittleTrouble:SetPosition()
 	local pos = self.db.profile.pos
 	if pos.x then
 		local s = self.master:GetEffectiveScale()
@@ -263,8 +241,8 @@ function BigTrouble:SetPosition()
 	end
 end
 
-function BigTrouble:CreateFrameWork()
-	self.master = CreateFrame("Frame", "BigTroubleFrame", UIParent)
+function LittleTrouble:CreateFrameWork()
+	self.master = CreateFrame("Frame", "LittleTroubleFrame", UIParent)
 	self.master:Hide()
 	
 	self.master:SetScript( "OnUpdate", self.OnCasting )
@@ -283,7 +261,7 @@ function BigTrouble:CreateFrameWork()
 	self:Layout()
 end
 
-function BigTrouble:Layout()
+function LittleTrouble:Layout()
 	local gameFont, _, _ = GameFontHighlightSmall:GetFont()
 	local db = self.db.profile
 	
@@ -336,27 +314,27 @@ function BigTrouble:Layout()
 	self:SetPosition()
 end
 
-function BigTrouble:OnCasting()
-	if BigTrouble.isAutoShot and not thresHold then
+function LittleTrouble:OnCasting()
+	if LittleTrouble.isAutoShot and not thresHold then
 		local currentTime = GetTime()
 		
-		if( currentTime > BigTrouble.maxValue ) then
-			currentTime = BigTrouble.maxValue
+		if( currentTime > LittleTrouble.maxValue ) then
+			currentTime = LittleTrouble.maxValue
 			thresHold = true
 		end
 		
-		BigTrouble.master.Bar:SetValue( currentTime )		
-		local sparkProgress = (( currentTime - BigTrouble.startTime ) / ( BigTrouble.maxValue - BigTrouble.startTime )) * BigTrouble.db.profile.width
-		BigTrouble.master.Spark:SetPoint("CENTER", BigTrouble.master.Bar, "LEFT", sparkProgress, 0)		
-		BigTrouble.master.Time:SetText( string.format( "%.1f", ( BigTrouble.maxValue - currentTime )))
+		LittleTrouble.master.Bar:SetValue( currentTime )		
+		local sparkProgress = (( currentTime - LittleTrouble.startTime ) / ( LittleTrouble.maxValue - LittleTrouble.startTime )) * LittleTrouble.db.profile.width
+		LittleTrouble.master.Spark:SetPoint("CENTER", LittleTrouble.master.Bar, "LEFT", sparkProgress, 0)		
+		LittleTrouble.master.Time:SetText( string.format( "%.1f", ( LittleTrouble.maxValue - currentTime )))
 	elseif fade then
-		local a = BigTrouble.master:GetAlpha() - .05
+		local a = LittleTrouble.master:GetAlpha() - .05
 
 		if( a > 0 ) then
-			BigTrouble.master:SetAlpha(a)
+			LittleTrouble.master:SetAlpha(a)
 		else
-			BigTrouble.master:Hide()
-			BigTrouble.master:SetAlpha(1)
+			LittleTrouble.master:Hide()
+			LittleTrouble.master:SetAlpha(1)
 		end
 	end
 end
