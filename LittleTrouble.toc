@@ -23,7 +23,7 @@ libs\AceDB\AceDB-2.0.lua
 libs\AceDebug\AceDebug-2.0.lua
 libs\AceEvent\AceEvent-2.0.lua
 libs\AceLocale\AceLocale-2.2.lua
-libs\SurfaceLib\Surface-1.0\Surface-1.0.lua
+libs\Surface\Surface-1.0.lua
 
 # Addon
 LittleTrouble-enUS.lua
