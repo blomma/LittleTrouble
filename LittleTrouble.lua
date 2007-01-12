@@ -6,12 +6,11 @@
 --]]
 
 
-local delayString, delayTime, thresHold, fade
+local thresHold, fade
 local locked = true
 
 local L = AceLibrary("AceLocale-2.2"):new("LittleTrouble")
 local surface = AceLibrary("Surface-1.0")
-
 surface:Register("Perl", "Interface\\AddOns\\LittleTrouble\\textures\\perl")
 surface:Register("Smooth", "Interface\\AddOns\\LittleTrouble\\textures\\smooth")
 surface:Register("Glaze", "Interface\\AddOns\\LittleTrouble\\textures\\glaze")
@@ -25,7 +24,6 @@ LittleTrouble.defaults = {
 	height		= 25,
 	timeSize	= 12,
 	spellSize	= 12,
-	delaySize	= 14,
 	border		= true,
 	texture		= "BantoBar",
 	pos			= {},
@@ -256,7 +254,6 @@ function LittleTrouble:CreateFrameWork()
 	self.master.Spark = self.master.Bar:CreateTexture(nil, "OVERLAY")
 	self.master.Time  = self.master.Bar:CreateFontString(nil, "OVERLAY")
 	self.master.Spell = self.master.Bar:CreateFontString(nil, "OVERLAY")
-	self.master.Delay = self.master.Bar:CreateFontString(nil, "OVERLAY")
 	
 	self:Layout()
 end
