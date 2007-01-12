@@ -27,9 +27,9 @@ LittleTrouble.defaults = {
 	border		= true,
 	texture		= "BantoBar",
 	pos			= {},
-    colors = {
-        autoshot	= {r=1, g=.7, b=0},
-    }
+	colors = {
+		autoshot	= {r=1, g=.7, b=0},
+	}
 }
 
 LittleTrouble.options = {
@@ -126,25 +126,25 @@ LittleTrouble.options = {
 				},
 			}
 		},
-        [L["colors"]] = {
-            name = L["colors"], type = 'group', order = 4,
-            desc = L["Set the bar colors."],
-            args = {
-                [L["autoshot"]] = {
-                    name = L["autoshot"], type = 'color',
-                    desc = L["Sets the color of the auto shot bar."],
-                    get = function()
-                        local v = LittleTrouble.db.profile.colors.autoshot
-                        return v.r,v.g,v.b
-                    end,
-                    set = function(r,g,b) 
-                        LittleTrouble.db.profile.colors.autoshot = {r=r,g=g,b=b} 
+		[L["colors"]] = {
+			name = L["colors"], type = 'group', order = 4,
+			desc = L["Set the bar colors."],
+			args = {
+				[L["autoshot"]] = {
+					name = L["autoshot"], type = 'color',
+					desc = L["Sets the color of the auto shot bar."],
+					get = function()
+						local v = LittleTrouble.db.profile.colors.autoshot
+						return v.r,v.g,v.b
+					end,
+					set = function(r,g,b) 
+						LittleTrouble.db.profile.colors.autoshot = {r=r,g=g,b=b} 
 						LittleTrouble:Layout()
-                    end
-                }
-            }
-        }
-    }
+					end
+				}
+			}
+		}
+	}
 }
 
 function LittleTrouble:SetLocked( value )
@@ -172,11 +172,11 @@ end
 
 function LittleTrouble:OnEnable()
 	self:CreateFrameWork()
-    
+
 	-- Autoshot
 	self:RegisterEvent("START_AUTOREPEAT_SPELL", "StartAutoRepeat")
 	self:RegisterEvent("STOP_AUTOREPEAT_SPELL", "StopAutoRepeat")
-	
+
 	self:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED", "SpellCastSucceeded")
 	self:RegisterEvent("UNIT_SPELLCAST_START", "SpellCastStart")
 end
@@ -184,7 +184,7 @@ end
 function LittleTrouble:SpellCastStart( unit )
 	if unit ~= "player" then return end
 	local name, _, _, _, _, _, _ = UnitCastingInfo(unit)
-	
+
 	if name == L["Aimed Shot"] then
 		self.isAutoShot = false
 	end
@@ -209,12 +209,12 @@ function LittleTrouble:SpellCastSucceeded( unit, spell, rank )
 end
 
 function LittleTrouble:StartAutoRepeat()
-    fade = nil
+	fade = nil
 	self.isAutoShot = true
 end
 
 function LittleTrouble:StopAutoRepeat()
-    fade = true
+	fade = true
 	self.isAutoShot = nil
 end
 
@@ -242,7 +242,7 @@ end
 function LittleTrouble:CreateFrameWork()
 	self.master = CreateFrame("Frame", "LittleTroubleFrame", UIParent)
 	self.master:Hide()
-	
+
 	self.master:SetScript( "OnUpdate", self.OnCasting )
 	self.master:SetMovable(true)
 	self.master:EnableMouse(true)
@@ -254,14 +254,14 @@ function LittleTrouble:CreateFrameWork()
 	self.master.Spark = self.master.Bar:CreateTexture(nil, "OVERLAY")
 	self.master.Time  = self.master.Bar:CreateFontString(nil, "OVERLAY")
 	self.master.Spell = self.master.Bar:CreateFontString(nil, "OVERLAY")
-	
+
 	self:Layout()
 end
 
 function LittleTrouble:Layout()
 	local gameFont, _, _ = GameFontHighlightSmall:GetFont()
 	local db = self.db.profile
-	
+
 	self.master:SetWidth( db.width + 9 )
 	self.master:SetHeight( db.height + 10 )
 
@@ -269,7 +269,7 @@ function LittleTrouble:Layout()
 	if db.border then 
 		edgeFile, edgeSize = "Interface\\Tooltips\\UI-Tooltip-Border", 16 
 	end
-	
+
 	self.master:SetBackdrop({
 		bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", tile = true, tileSize = 16,
 		edgeFile = edgeFile or "", 
@@ -314,12 +314,12 @@ end
 function LittleTrouble:OnCasting()
 	if LittleTrouble.isAutoShot and not thresHold then
 		local currentTime = GetTime()
-		
+
 		if( currentTime > LittleTrouble.maxValue ) then
 			currentTime = LittleTrouble.maxValue
 			thresHold = true
 		end
-		
+
 		LittleTrouble.master.Bar:SetValue( currentTime )		
 		local sparkProgress = (( currentTime - LittleTrouble.startTime ) / ( LittleTrouble.maxValue - LittleTrouble.startTime )) * LittleTrouble.db.profile.width
 		LittleTrouble.master.Spark:SetPoint("CENTER", LittleTrouble.master.Bar, "LEFT", sparkProgress, 0)		
