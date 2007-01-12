@@ -153,10 +153,10 @@ function LittleTrouble:SetLocked( value )
 	if not value and not self.isAutoShot then
 		self.master:SetScript( "OnUpdate", nil )
 		self.master:Show()
-		self.master.Bar:SetStatusBarColor(.3, .3, .3)
 		self.master.Time:SetText("1.3")
 		self.master.Spell:SetText(L["Son of a bitch must pay!"])
 	else
+		self.master:Hide()
 		self.master:SetScript( "OnUpdate", self.OnCasting )
 	end
 	
