@@ -13,6 +13,7 @@
 ## X-Category: Hunter
 ## X-Embeds: Ace2, SurfaceLib
 ## X-WoWIPortal: fleetfoot
+## X-RelSite-WoWI: 6728
 
 # Libraries
 libs\AceLibrary\AceLibrary.lua
