@@ -16,7 +16,7 @@ return {
 	["texture"] = true,
 	["Set the texture."] = true,
 	["border"] = true,
-	["Toggle the border."] = true,
+	["Set the border for the bar."] = true,
 	["width"] = true,
 	["Set the width of the casting bar."] = true,
 	["height"] = true,

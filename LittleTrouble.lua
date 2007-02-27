@@ -6,9 +6,6 @@
 --]]
 
 
-local thresHold, fade
-local locked = true
-
 local L = AceLibrary("AceLocale-2.2"):new("LittleTrouble")
 local surface = AceLibrary("Surface-1.0")
 surface:Register("Perl", "Interface\\AddOns\\LittleTrouble\\textures\\perl")
@@ -17,14 +14,14 @@ surface:Register("Glaze", "Interface\\AddOns\\LittleTrouble\\textures\\glaze")
 surface:Register("BantoBar", "Interface\\AddOns\\LittleTrouble\\textures\\BantoBar")
 surface:Register("Gloss", "Interface\\AddOns\\LittleTrouble\\textures\\Gloss")
 
-LittleTrouble = AceLibrary("AceAddon-2.0"):new("AceEvent-2.0", "AceDebug-2.0", "AceDB-2.0", "AceConsole-2.0")
+LittleTrouble = AceLibrary("AceAddon-2.0"):new("AceEvent-2.0", "AceDB-2.0", "AceConsole-2.0")
 
 LittleTrouble.defaults = {
 	width		= 255,
 	height		= 25,
 	timeSize	= 12,
 	spellSize	= 12,
-	border		= true,
+	borderStyle = "Classic",
 	texture		= "BantoBar",
 	pos			= {},
 	colors = {
@@ -39,8 +36,19 @@ LittleTrouble.options = {
 			name = L["lock"],
 			type = "toggle",
 			desc = L["Lock/Unlock the casting bar."],
-			get = function() return locked end,
-			set = "SetLocked",
+			get = function() return LittleTrouble.locked end,
+			set = function(v)
+				LittleTrouble.locked = v
+				if not v and not LittleTrouble.isAutoShot then
+					LittleTrouble.master:SetScript( "OnUpdate", nil )
+					LittleTrouble.master:Show()
+					LittleTrouble.master.Time:SetText("1.3")
+					LittleTrouble.master.Spell:SetText(L["Son of a bitch must pay!"])
+				else
+					LittleTrouble.master:Hide()
+					LittleTrouble.master:SetScript( "OnUpdate", LittleTrouble.OnCasting )
+				end
+			end,
 			map = {[false] = L["Unlocked"], [true] = L["Locked"]},
 			guiNameIsMap = true,
 		},
@@ -57,15 +65,14 @@ LittleTrouble.options = {
 		},
 		[L["border"]] = {
 			name = L["border"],
-			type = "toggle",
-			desc = L["Toggle the border."],
-			get = function() return LittleTrouble.db.profile.border end,
-			set = function(v) 
-				LittleTrouble.db.profile.border = v 
-				LittleTrouble:Layout()
+			type = "text",
+			desc = L["Set the border for the bar."],
+			get = function() return LittleTrouble.db.profile.borderStyle end,
+			set = function(v)
+				LittleTrouble.db.profile.borderStyle = v 
+				LittleTrouble:BorderBackground()
 			end,
-			map = {[false] = L["Off"], [true] = L["On"]},
-			guiNameIsMap = true,
+			validate = {"Classic", "Black", "Hidden"},
 		},
 		[L["width"]] = {
 			name = L["width"], 
@@ -147,27 +154,30 @@ LittleTrouble.options = {
 	}
 }
 
-function LittleTrouble:SetLocked( value )
-	locked = value
-
-	if not value and not self.isAutoShot then
-		self.master:SetScript( "OnUpdate", nil )
-		self.master:Show()
-		self.master.Time:SetText("1.3")
-		self.master.Spell:SetText(L["Son of a bitch must pay!"])
-	else
-		self.master:Hide()
-		self.master:SetScript( "OnUpdate", self.OnCasting )
-	end
-	
-end
+LittleTrouble.Borders = {
+	["Classic"]		= {
+		["texture"] = "Interface\\Tooltips\\UI-Tooltip-Border",["size"] = 16,["insets"] = 5,
+		["bc"] = {r=0,g=0,b=0,a=1},
+		["bbc"] = {r=TOOLTIP_DEFAULT_COLOR.r,g=TOOLTIP_DEFAULT_COLOR.g,b=TOOLTIP_DEFAULT_COLOR.b,a=1},
+	},
+	["Black"]		= {
+		["texture"] = "Interface\\Tooltips\\UI-Tooltip-Border",["size"] = 16,["insets"] = 4,
+		["bc"] = {r=0,g=0,b=0,a=1},
+		["bbc"] = {r=0,g=0,b=0,a=1},
+	},
+	["Hidden"]		= {
+		["texture"] = "",["size"] = 0,["insets"] = 4,
+		["bc"] = {r=0,g=0,b=0,a=1},
+		["bbc"] = {r=0,g=0,b=0,a=1},
+	},
+}
 
 LittleTrouble:RegisterDB("LittleTroubleDB")
 LittleTrouble:RegisterDefaults('profile', LittleTrouble.defaults)
 LittleTrouble:RegisterChatCommand( {"/ltrouble"}, LittleTrouble.options )
 
 function LittleTrouble:OnInitialize()
-	self:SetDebugging(false)
+	self.locked = true
 end
 
 function LittleTrouble:OnEnable()
@@ -197,7 +207,7 @@ function LittleTrouble:SpellCastSucceeded( unit, spell, rank )
 	self.startTime = GetTime()
 	self.maxValue = self.startTime + UnitRangedDamage("player")
 	self.isAutoShot = true
-	thresHold = nil
+	self.thresHold = nil
 	self.master.Bar:SetMinMaxValues( self.startTime, self.maxValue )
 	self.master.Bar:SetValue( self.startTime )
 	self.master.Spell:SetText(L["Auto Shot"])
@@ -209,12 +219,12 @@ function LittleTrouble:SpellCastSucceeded( unit, spell, rank )
 end
 
 function LittleTrouble:StartAutoRepeat()
-	fade = nil
+	self.fade = nil
 	self.isAutoShot = true
 end
 
 function LittleTrouble:StopAutoRepeat()
-	fade = true
+	self.fade = true
 	self.isAutoShot = nil
 end
 
@@ -247,7 +257,7 @@ function LittleTrouble:CreateFrameWork()
 	self.master:SetMovable(true)
 	self.master:EnableMouse(true)
 	self.master:RegisterForDrag("LeftButton")
-	self.master:SetScript("OnDragStart", function() if not locked then self["master"]:StartMoving() end end)
+	self.master:SetScript("OnDragStart", function() if not self.locked then self["master"]:StartMoving() end end)
 	self.master:SetScript("OnDragStop", function() self["master"]:StopMovingOrSizing() self:SavePosition() end)
 
 	self.master.Bar	  = CreateFrame("StatusBar", nil, self.master)
@@ -265,21 +275,8 @@ function LittleTrouble:Layout()
 	self.master:SetWidth( db.width + 9 )
 	self.master:SetHeight( db.height + 10 )
 
-	local edgeFile, edgeSize
-	if db.border then 
-		edgeFile, edgeSize = "Interface\\Tooltips\\UI-Tooltip-Border", 16 
-	end
-
-	self.master:SetBackdrop({
-		bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", tile = true, tileSize = 16,
-		edgeFile = edgeFile or "", 
-		edgeSize = edgeSize or "",
-		insets = {left = 4, right = 4, top = 4, bottom = 4},
-	})
-
-	self.master:SetBackdropBorderColor(0, 0, 0)
-	self.master:SetBackdropColor(0, 0, 0)
-
+	self:BorderBackground()
+	
 	self.master.Bar:ClearAllPoints()
 	self.master.Bar:SetPoint("CENTER", self.master, "CENTER", 0, 0)
 	self.master.Bar:SetWidth( db.width )
@@ -311,20 +308,43 @@ function LittleTrouble:Layout()
 	self:SetPosition()
 end
 
+function LittleTrouble:BorderBackground()
+	local borderstyle = self.db.profile.borderStyle
+	local color = self.Borders[borderstyle]
+	
+	self.master:SetBackdrop({
+		bgFile = "Interface\\ChatFrame\\ChatFrameBackground", 
+		tile = true, 
+		tileSize = 16,
+		edgeFile = self.Borders[borderstyle].texture,
+		edgeSize = self.Borders[borderstyle].size,
+		insets = {
+			left = self.Borders[borderstyle].insets, 
+			right = self.Borders[borderstyle].insets, 
+			top = self.Borders[borderstyle].insets, 
+			bottom = self.Borders[borderstyle].insets
+		},
+	})
+		
+	
+	self.master:SetBackdropColor(color.bc.r,color.bc.g,color.bc.b,color.bc.a)
+	self.master:SetBackdropBorderColor(color.bbc.r,color.bbc.g,color.bbc.b,color.bbc.a)
+end
+
 function LittleTrouble:OnCasting()
-	if LittleTrouble.isAutoShot and not thresHold then
+	if LittleTrouble.isAutoShot and not LittleTrouble.thresHold then
 		local currentTime = GetTime()
 
 		if( currentTime > LittleTrouble.maxValue ) then
 			currentTime = LittleTrouble.maxValue
-			thresHold = true
+			LittleTrouble.thresHold = true
 		end
 
 		LittleTrouble.master.Bar:SetValue( currentTime )		
 		local sparkProgress = (( currentTime - LittleTrouble.startTime ) / ( LittleTrouble.maxValue - LittleTrouble.startTime )) * LittleTrouble.db.profile.width
 		LittleTrouble.master.Spark:SetPoint("CENTER", LittleTrouble.master.Bar, "LEFT", sparkProgress, 0)		
 		LittleTrouble.master.Time:SetText( string.format( "%.1f", ( LittleTrouble.maxValue - currentTime )))
-	elseif fade then
+	elseif LittleTrouble.fade then
 		local a = LittleTrouble.master:GetAlpha() - .05
 
 		if( a > 0 ) then

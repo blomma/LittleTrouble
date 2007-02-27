@@ -20,7 +20,7 @@ return {
 	["texture"] = "texture",
 	["Set the texture."] = "Set the texture.",
 	["border"] = "border",
-	["Toggle the border."] = "Toggle the border.",
+	["Set the border for the bar."] = "Set the border for the bar.",
 	["width"] = "width", 
 	["Set the width of the casting bar."] = "Set the width of the casting bar.",
 	["height"] = "height", 
