@@ -183,7 +183,6 @@ end
 function LittleTrouble:OnEnable()
 	self:CreateFrameWork()
 
-	-- Autoshot
 	self:RegisterEvent("START_AUTOREPEAT_SPELL", "StartAutoRepeat")
 	self:RegisterEvent("STOP_AUTOREPEAT_SPELL", "StopAutoRepeat")
 
@@ -326,7 +325,6 @@ function LittleTrouble:BorderBackground()
 		},
 	})
 		
-	
 	self.master:SetBackdropColor(color.bc.r,color.bc.g,color.bc.b,color.bc.a)
 	self.master:SetBackdropBorderColor(color.bbc.r,color.bbc.g,color.bbc.b,color.bbc.a)
 end
