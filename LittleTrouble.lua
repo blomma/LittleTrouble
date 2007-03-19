@@ -5,6 +5,14 @@
 	Textures for the castbar taken from agUF and oCB
 --]]
 
+--[[
+Credits
+
+Author of oCB for textures and code
+Author of agUF for textures
+Kergoth: Support for !SurfaceControl
+]]--
+
 
 local L = AceLibrary("AceLocale-2.2"):new("LittleTrouble")
 local surface = AceLibrary("Surface-1.0")
@@ -188,6 +196,9 @@ function LittleTrouble:OnEnable()
 
 	self:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED", "SpellCastSucceeded")
 	self:RegisterEvent("UNIT_SPELLCAST_START", "SpellCastStart")
+    self:RegisterEvent("Surface_SetGlobal", function()
+        self.master.Bar:SetStatusBarTexture( surface:Fetch( self.db.profile.texture ))
+    end)
 end
 
 function LittleTrouble:SpellCastStart( unit )
