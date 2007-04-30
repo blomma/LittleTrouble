@@ -3,7 +3,7 @@
 ## Notes: A bar for autoshot
 ## Author: Fleetfoot
 ## Version: 2.0
-## OptionalDeps: Ace2, SurfaceLib
+## OptionalDeps: Ace2, SharedMediaLib, DewdropLib
 ## SavedVariables: LittleTroubleDB
 ## X-License: GPL v2 or later
 ## X-Website: http://fleetfoot.wowinterface.com/
