@@ -1,4 +1,9 @@
 local SM = AceLibrary("SharedMedia-1.0")
+SM:Register("statusbar", "BantoBar", "Interface\\AddOns\\LittleTrouble\\textures\\BantoBar.tga")
+SM:Register("statusbar", "Glaze", "Interface\\AddOns\\LittleTrouble\\textures\\glaze.tga")
+SM:Register("statusbar", "Gloss", "Interface\\AddOns\\LittleTrouble\\textures\\Gloss.tga")
+SM:Register("statusbar", "Perl", "Interface\\AddOns\\LittleTrouble\\textures\\perl.tga")
+SM:Register("statusbar", "Smooth", "Interface\\AddOns\\LittleTrouble\\textures\\smooth.tga")
 
 LittleTrouble = AceLibrary("AceAddon-2.0"):new("AceEvent-2.0", "AceDB-2.0", "AceConsole-2.0")
 
@@ -373,17 +378,18 @@ function LittleTrouble:UNIT_SPELLCAST_SUCCEEDED( unit, spell, rank )
 	fade = false
 	isAutoShot = true
 
-	self.frame:SetAlpha(1)
+    local frame = self.frame
+	frame:SetAlpha(1)
 
-	self.frame.castBar:SetMinMaxValues(startTime, endTime)
-	self.frame.castBar:SetValue(startTime)
+	frame.castBar:SetMinMaxValues(startTime, endTime)
+	frame.castBar:SetValue(startTime)
 	if not self.db.profile.textDisable then
-		self.frame.castBarText:SetText(LS["Auto Shot"])
+		frame.castBarText:SetText(LS["Auto Shot"])
 	else
-		self.frame.castBarText:SetText("")
+		frame.castBarText:SetText("")
 	end
-	self.frame.castBarTimeText:SetText("")
-	self.frame:Show()
+	frame.castBarTimeText:SetText("")
+	frame:Show()
 end
 
 function LittleTrouble:START_AUTOREPEAT_SPELL()
