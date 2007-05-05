@@ -389,6 +389,13 @@ function LittleTrouble:OnEnable()
 
 	self:RegisterEvent("START_AUTOREPEAT_SPELL")
 	self:RegisterEvent("UNIT_SPELLCAST_START")
+
+	local castBar = self.frame.castBar
+	self:RegisterEvent("SharedMedia_SetGlobal", function(mtype, override)
+		if mtype == "statusbar" then
+			castBar:SetStatusBarTexture(SM:Fetch("statusbar", override))
+		end
+	end)
 end
 
 function LittleTrouble:UNIT_SPELLCAST_START( unit )
