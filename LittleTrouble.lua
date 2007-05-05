@@ -72,10 +72,11 @@ end)
 
 local Dewdrop = AceLibrary("Dewdrop-2.0")
 
-local isAutoShot, endTime, startTime, fade
+local isAutoShot, isAimedShot, endTime, startTime
 local locked = true
 
 local defaults = {
+    alpha       = 1,
 	scale		= 1,
 	width		= 255,
 	height		= 25,
@@ -86,6 +87,7 @@ local defaults = {
 	textSize	= 12,
 	borderStyle = "Classic",
 	texture		= "Blizzard",
+    autoShotDelay = 0.8,
 	pos			= {},
 	colors = {
 		bar = {1, .7, 0, 1},
@@ -116,13 +118,25 @@ local options = {
 					LittleTrouble.frame:Hide()
 					LittleTrouble.frame.castBarTimeText:SetText("")
 					LittleTrouble.frame.castBarText:SetText("")
-					LittleTrouble.frame:SetScript( "OnUpdate", LittleTrouble.OnCasting )
+					LittleTrouble.frame:SetScript( "OnUpdate", LittleTrouble.OnUpdate )
 				end
 			end,
 		},
+        autoshotdelay = {
+            name = L["Autoshot delay after Aimedshot"], 
+            desc = L["Sets the amount of seconds to delay the autoshot following a aimedshot."],
+            type = "range", 
+            min = 0,
+            max = 2,
+            step = 0.01,
+            get = function() return LittleTrouble.db.profile.autoShotDelay end,
+            set = function(v)
+                LittleTrouble.db.profile.autoShotDelay = v
+            end,
+        },
 		texture = {
 			name = L["Texture"],
-			desc = L["Texture setting."],
+			desc = L["Sets the texture of the bar."],
 			type = "text",
 			get = function() return LittleTrouble.db.profile.texture end,
 			set = function(v)
@@ -133,7 +147,7 @@ local options = {
 		},
 		font = {
 			name = L["Font"],
-			desc = L["Texture setting."],
+			desc = L["Sets the font face of the bar."],
 			type = "text",
 			get = function() return LittleTrouble.db.profile.font end,
 			set = function(v)
@@ -144,7 +158,7 @@ local options = {
 		},
 		border = {
 			name = L["Border"],
-			desc = L["Border settings."],
+			desc = L["Sets the border of the bar."],
 			type = "text",
 			get = function() return LittleTrouble.db.profile.borderStyle end,
 			set = function(v)
@@ -160,7 +174,7 @@ local options = {
 			args = {
 				scale = {
 					name = L["Scale"],
-					desc = L["Scale"],
+					desc = L["Sets the scale of the bar."],
 					type = 'range',
 					isPercent = true,
 					min = 0.5,
@@ -175,7 +189,7 @@ local options = {
 				},
 				width = {
 					name = L["Width"], 
-					desc = L["Width"],
+					desc = L["Sets the width of the bar."],
 					type = "range", 
 					min = 10, 
 					max = 5000, 
@@ -188,7 +202,7 @@ local options = {
 				},
 				height = {
 					name = L["Height"], 
-					desc = L["Height"],
+					desc = L["Sets the height of the bar."],
 					type = "range", 
 					min = 10,
 					max = 500,
@@ -208,14 +222,14 @@ local options = {
 			args = {
 				disable = {
 					name = L["Disable"],
-					desc = L["Disables bar text."],
+					desc = L["Disables the text on the bar."],
 					type = 'toggle',
 					get = function() return LittleTrouble.db.profile.textDisable end,
 					set = function(v) LittleTrouble.db.profile.textDisable = v end,
 				},
 				height = {
 					name = L["Font height"], 
-					desc = L["Font height."],
+					desc = L["Sets the height of the text."],
 					type = "range", 
 					min = 6,
 					max = 32,
@@ -235,14 +249,14 @@ local options = {
 			args = {
 				disable = {
 					name = L["Disable"],
-					desc = L["Disables bar time."],
+					desc = L["Disables the time on the bar."],
 					type = 'toggle',
 					get = function() return LittleTrouble.db.profile.timeDisable end,
 					set = function(v) LittleTrouble.db.profile.timeDisable = v end,
 				},
 				time = {
 					name = L["Font height"], 
-					desc = L["Font height."],
+					desc = L["Sets the height of the time."],
 					type = "range", 
 					min = 6, 
 					max = 32, 
@@ -260,10 +274,25 @@ local options = {
 			desc = L["Color settings."],
 			type = 'group',
 			args = {
+                alpha = {
+					name = L["Alpha"],
+					desc = L["Sets the alpha of the bar."],
+					type = "range", 
+					min = 0,
+					max = 1,
+					step = 0.01,
+					isPercent = true,
+					get = function() return LittleTrouble.db.profile.alpha end,
+					set = function(v)
+						LittleTrouble.db.profile.alpha = v
+						LittleTrouble:Layout()
+					end,
+                },
 				time = {
 					name = L["Time"], 
-					desc = L["Time"],
+					desc = L["Sets the color of the time."],
 					type = 'color',
+                    hasAlpha = true,
 					get = function()
 						local v = LittleTrouble.db.profile.colors.time
 						return unpack(v)
@@ -275,8 +304,9 @@ local options = {
 				},
 				text = {
 					name = L["Text"], 
-					desc = L["Text"],
+					desc = L["Sets the color of the text."],
 					type = 'color',
+                    hasAlpha = true,
 					get = function()
 						local v = LittleTrouble.db.profile.colors.text
 						return unpack(v)
@@ -288,8 +318,9 @@ local options = {
 				},
 				bar = {
 					name = L["Bar"], 
-					desc = L["Bar"],
+					desc = L["Sets the color of the bar."],
 					type = 'color',
+                    hasAlpha = true,
 					get = function()
 						local v = LittleTrouble.db.profile.colors.bar
 						return unpack(v)
@@ -301,8 +332,9 @@ local options = {
 				},
 				background = {
 					name = L["Background"], 
-					desc = L["Background"],
+					desc = L["Sets the color of the background."],
 					type = 'color',
+                    hasAlpha = true,
 					get = function()
 						local v = LittleTrouble.db.profile.colors.background
 						return unpack(v)
@@ -314,8 +346,9 @@ local options = {
 				},
 				border = {
 					name = L["Border"], 
-					desc = L["Border"],
+					desc = L["Sets the color of the border."],
 					type = 'color',
+                    hasAlpha = true,
 					get = function()
 						local v = LittleTrouble.db.profile.colors.border
 						return unpack(v)
@@ -355,35 +388,38 @@ function LittleTrouble:OnEnable()
 	self:CreateFrameWork()
 
 	self:RegisterEvent("START_AUTOREPEAT_SPELL")
-	self:RegisterEvent("STOP_AUTOREPEAT_SPELL")
-	self:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
 	self:RegisterEvent("UNIT_SPELLCAST_START")
 end
 
 function LittleTrouble:UNIT_SPELLCAST_START( unit )
 	if unit ~= "player" then return end
-	local name, _, _, _, _, _, _ = UnitCastingInfo(unit)
+	local name = select(1, UnitCastingInfo(unit))
 	if name == LS["Aimed Shot"] then
-		fade = true
 		isAutoShot = false
+        isAimedShot = true
+        self:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED","UNIT_SPELLCAST_SUCCEEDED",1)
 	end
 end
 
 function LittleTrouble:UNIT_SPELLCAST_SUCCEEDED( unit, spell, rank )
 	if unit ~= "player" then return end
 	if spell ~= LS["Auto Shot"] and spell ~= LS["Aimed Shot"] then return end
-
+    
 	startTime = GetTime()
 	endTime = startTime + UnitRangedDamage("player")
-	fade = false
+
+    local db = self.db.profile
+    if spell == LS["Aimed Shot"] then
+        isAimedShot = false
+        endTime = endTime + db.autoShotDelay
+    end
+    
 	isAutoShot = true
-
+    
     local frame = self.frame
-	frame:SetAlpha(1)
-
-	frame.castBar:SetMinMaxValues(startTime, endTime)
-	frame.castBar:SetValue(startTime)
-	if not self.db.profile.textDisable then
+	frame:SetAlpha(db.alpha)
+	frame.castBar:SetValue(0)
+	if not db.textDisable then
 		frame.castBarText:SetText(LS["Auto Shot"])
 	else
 		frame.castBarText:SetText("")
@@ -393,30 +429,33 @@ function LittleTrouble:UNIT_SPELLCAST_SUCCEEDED( unit, spell, rank )
 end
 
 function LittleTrouble:START_AUTOREPEAT_SPELL()
-	fade = false
-	isAutoShot = true
+	self:RegisterEvent("STOP_AUTOREPEAT_SPELL")
+	self:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
 end
 
 function LittleTrouble:STOP_AUTOREPEAT_SPELL()
-	fade = true
-	isAutoShot = false
+    isAutoShot = false
+    self:UnregisterEvent("STOP_AUTOREPEAT_SPELL")
+    if not isAimedShot then
+        self:UnregisterEvent("UNIT_SPELLCAST_SUCCEEDED")
+    end
 end
 
-function LittleTrouble:OnCasting()
+function LittleTrouble:OnUpdate()
 	if isAutoShot then
 		local currentTime = GetTime()
 
 		if currentTime > endTime then
 			currentTime = endTime
 			isAutoShot = false
-			fade = true
 		end
 
-		LittleTrouble.frame.castBar:SetValue(currentTime)
+        local prc = (currentTime - startTime) / (endTime - startTime)
+		LittleTrouble.frame.castBar:SetValue(prc)
 		if not LittleTrouble.db.profile.timeDisable then
 			LittleTrouble.frame.castBarTimeText:SetText(("%.1f"):format(endTime - currentTime))
 		end
-	elseif fade then
+	else
 		local alpha = LittleTrouble.frame:GetAlpha() - .10
 
 		if alpha > 0 then
@@ -459,7 +498,7 @@ function LittleTrouble:CreateFrameWork()
 		this:SetPoint("CENTER", UIParent, "CENTER", x/s, y/s)
 	end)
 
-	frame:SetScript( "OnUpdate", self.OnCasting )
+	frame:SetScript( "OnUpdate", self.OnUpdate )
 	frame:SetClampedToScreen(true)
 
 	frame.castBar = CreateFrame("StatusBar", "LittleTroubleStatusBar", frame)
@@ -502,6 +541,7 @@ function LittleTrouble:Layout()
 	castBar:SetHeight(db.height - border[3] * 2)
 	castBar:SetStatusBarTexture( SM:Fetch("statusbar", db.texture))
 	castBar:SetStatusBarColor(unpack(db.colors.bar))
+	castBar:SetMinMaxValues(0, 1)
 	castBar:ClearAllPoints()
 	castBar:SetPoint("CENTER", frame, "CENTER", 0, 0)
 
