@@ -2,7 +2,6 @@
 ## Title: LittleTrouble |cff7fff7f -Ace2-|r
 ## Notes: A bar for autoshot
 ## Author: Fleetfoot
-## Version: 2.0
 ## OptionalDeps: Ace2, SharedMediaLib, DewdropLib
 ## SavedVariables: LittleTroubleDB
 ## X-License: GPL v2 or later

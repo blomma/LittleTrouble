@@ -1,3 +1,5 @@
+local VERSION = tonumber(("$Revision$"):match("%d+"))
+
 local SM = AceLibrary("SharedMedia-1.0")
 SM:Register("statusbar", "BantoBar", "Interface\\AddOns\\LittleTrouble\\textures\\BantoBar.tga")
 SM:Register("statusbar", "Glaze", "Interface\\AddOns\\LittleTrouble\\textures\\glaze.tga")
@@ -6,6 +8,9 @@ SM:Register("statusbar", "Perl", "Interface\\AddOns\\LittleTrouble\\textures\\pe
 SM:Register("statusbar", "Smooth", "Interface\\AddOns\\LittleTrouble\\textures\\smooth.tga")
 
 LittleTrouble = AceLibrary("AceAddon-2.0"):new("AceEvent-2.0", "AceDB-2.0", "AceConsole-2.0")
+LittleTrouble.version = "r" .. VERSION
+LittleTrouble.revision = VERSION
+LittleTrouble.date = ("$Date$"):match("%d%d%d%d%-%d%d%-%d%d")
 
 local localeTables = {}
 function LittleTrouble:L(name)
