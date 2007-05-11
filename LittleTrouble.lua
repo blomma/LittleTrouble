@@ -37,7 +37,7 @@ end)
 LS:RegisterTranslations("deDE", function()
 return {
 	["Aimed Shot"] = "Gezielter Schuss",
-	["Auto Shot"] = "Autom. Schuss",
+	["Auto Shot"] = "Automatischer Schuss",
 }
 end)
 
