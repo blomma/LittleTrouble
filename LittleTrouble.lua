@@ -13,18 +13,7 @@ LittleTrouble.version = "r" .. VERSION
 LittleTrouble.revision = VERSION
 LittleTrouble.date = ("$Date$"):match("%d%d%d%d%-%d%d%-%d%d")
 
-local localeTables = {}
-function LittleTrouble:L(name)
-	if not localeTables[name] then
-		localeTables[name] = setmetatable({}, {__index = function(self, key)
-			self[key] = key
-			return key
-		end})
-	end
-	return localeTables[name]
-end
-
-local L = LittleTrouble:L("LittleTrouble")
+local L = setmetatable({}, {__index = function(self, key) return key end})
 local LS = AceLibrary("AceLocale-2.2"):new("LittleTrouble")
 
 LS:RegisterTranslations("enUS", function()
@@ -76,13 +65,11 @@ return {
 }
 end)
 
-local Dewdrop = AceLibrary("Dewdrop-2.0")
-
 local isAutoShot, isAimedShot, endTime, startTime
 local locked = true
 
 local defaults = {
-    alpha       = 1,
+	alpha		= 1,
 	scale		= 1,
 	width		= 255,
 	height		= 25,
@@ -93,7 +80,7 @@ local defaults = {
 	textSize	= 12,
 	borderStyle = "Classic",
 	texture		= "Blizzard",
-    autoShotDelay = 0.8,
+	autoShotDelay = 0.8,
 	pos			= {},
 	colors = {
 		bar = {1, .7, 0, 1},
@@ -128,18 +115,18 @@ local options = {
 				end
 			end,
 		},
-        autoshotdelay = {
-            name = L["Autoshot delay after Aimedshot"], 
-            desc = L["Sets the amount of seconds to delay the autoshot following a aimedshot."],
-            type = "range", 
-            min = 0,
-            max = 2,
-            step = 0.01,
-            get = function() return LittleTrouble.db.profile.autoShotDelay end,
-            set = function(v)
-                LittleTrouble.db.profile.autoShotDelay = v
-            end,
-        },
+		autoshotdelay = {
+			name = L["Autoshot delay after Aimedshot"], 
+			desc = L["Sets the amount of seconds to delay the autoshot following a aimedshot."],
+			type = "range", 
+			min = 0,
+			max = 2,
+			step = 0.01,
+			get = function() return LittleTrouble.db.profile.autoShotDelay end,
+			set = function(v)
+				LittleTrouble.db.profile.autoShotDelay = v
+			end,
+		},
 		texture = {
 			name = L["Texture"],
 			desc = L["Sets the texture of the bar."],
@@ -280,7 +267,7 @@ local options = {
 			desc = L["Color settings."],
 			type = 'group',
 			args = {
-                alpha = {
+				alpha = {
 					name = L["Alpha"],
 					desc = L["Sets the alpha of the bar."],
 					type = "range", 
@@ -293,12 +280,12 @@ local options = {
 						LittleTrouble.db.profile.alpha = v
 						LittleTrouble:Layout()
 					end,
-                },
+				},
 				time = {
 					name = L["Time"], 
 					desc = L["Sets the color of the time."],
 					type = 'color',
-                    hasAlpha = true,
+					hasAlpha = true,
 					get = function()
 						local v = LittleTrouble.db.profile.colors.time
 						return unpack(v)
@@ -312,7 +299,7 @@ local options = {
 					name = L["Text"], 
 					desc = L["Sets the color of the text."],
 					type = 'color',
-                    hasAlpha = true,
+					hasAlpha = true,
 					get = function()
 						local v = LittleTrouble.db.profile.colors.text
 						return unpack(v)
@@ -326,7 +313,7 @@ local options = {
 					name = L["Bar"], 
 					desc = L["Sets the color of the bar."],
 					type = 'color',
-                    hasAlpha = true,
+					hasAlpha = true,
 					get = function()
 						local v = LittleTrouble.db.profile.colors.bar
 						return unpack(v)
@@ -340,7 +327,7 @@ local options = {
 					name = L["Background"], 
 					desc = L["Sets the color of the background."],
 					type = 'color',
-                    hasAlpha = true,
+					hasAlpha = true,
 					get = function()
 						local v = LittleTrouble.db.profile.colors.background
 						return unpack(v)
@@ -354,7 +341,7 @@ local options = {
 					name = L["Border"], 
 					desc = L["Sets the color of the border."],
 					type = 'color',
-                    hasAlpha = true,
+					hasAlpha = true,
 					get = function()
 						local v = LittleTrouble.db.profile.colors.border
 						return unpack(v)
@@ -377,20 +364,19 @@ local borders = {
 LittleTrouble:RegisterDB("LittleTroubleDB")
 LittleTrouble:RegisterDefaults('profile', defaults)
 
-function LittleTrouble:OnEnable()
-	Dewdrop:InjectAceOptionsTable(self, options)
-	self:RegisterChatCommand('/ltrouble', {
-		type = 'execute',
-		func = function()
-			Dewdrop:Open("LittleTrouble")
-		end
-	})
-	Dewdrop:Register("LittleTrouble",
-		'children', options,
-		'cursorX', true,
-		'cursorY', true
+function LittleTrouble:OnInitialize()
+	AceLibrary("Waterfall-1.0"):Register('LittleTrouble',
+		'aceOptions', options,
+		'title', L["LittleTrouble"],
+		'treeLevels', 3,
+		'colorR', 0.8, 'colorG', 0.8, 'colorB', 0.8
 	)
+	self:RegisterChatCommand({"/ltrouble"}, function()
+		AceLibrary("Waterfall-1.0"):Open('LittleTrouble')
+	end)
+end
 
+function LittleTrouble:OnEnable()
 	self:CreateFrameWork()
 
 	self:RegisterEvent("START_AUTOREPEAT_SPELL")
@@ -407,29 +393,29 @@ end
 function LittleTrouble:UNIT_SPELLCAST_START( unit )
 	if unit ~= "player" then return end
 	local name = select(1, UnitCastingInfo(unit))
-	if name == LS["Aimed Shot"] then
-		isAutoShot = false
-        isAimedShot = true
-        self:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED","UNIT_SPELLCAST_SUCCEEDED",1)
-	end
+	if name ~= LS["Aimed Shot"] then return end
+
+	isAutoShot = false
+	isAimedShot = true
+	self:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED","UNIT_SPELLCAST_SUCCEEDED",1)
 end
 
 function LittleTrouble:UNIT_SPELLCAST_SUCCEEDED( unit, spell, rank )
 	if unit ~= "player" then return end
 	if spell ~= LS["Auto Shot"] and spell ~= LS["Aimed Shot"] then return end
-    
+
 	startTime = GetTime()
 	endTime = startTime + UnitRangedDamage("player")
 
-    local db = self.db.profile
-    if spell == LS["Aimed Shot"] then
-        isAimedShot = false
-        endTime = endTime + db.autoShotDelay
-    end
-    
+	local db = self.db.profile
+	if spell == LS["Aimed Shot"] then
+		isAimedShot = false
+		endTime = endTime + db.autoShotDelay
+	end
+
 	isAutoShot = true
-    
-    local frame = self.frame
+
+	local frame = self.frame
 	frame:SetAlpha(db.alpha)
 	frame.castBar:SetValue(0)
 	if not db.textDisable then
@@ -447,11 +433,11 @@ function LittleTrouble:START_AUTOREPEAT_SPELL()
 end
 
 function LittleTrouble:STOP_AUTOREPEAT_SPELL()
-    isAutoShot = false
-    self:UnregisterEvent("STOP_AUTOREPEAT_SPELL")
-    if not isAimedShot then
-        self:UnregisterEvent("UNIT_SPELLCAST_SUCCEEDED")
-    end
+	isAutoShot = false
+	self:UnregisterEvent("STOP_AUTOREPEAT_SPELL")
+	if not isAimedShot then
+		self:UnregisterEvent("UNIT_SPELLCAST_SUCCEEDED")
+	end
 end
 
 function LittleTrouble:OnUpdate()
@@ -463,7 +449,7 @@ function LittleTrouble:OnUpdate()
 			isAutoShot = false
 		end
 
-        local prc = (currentTime - startTime) / (endTime - startTime)
+		local prc = (currentTime - startTime) / (endTime - startTime)
 		LittleTrouble.frame.castBar:SetValue(prc)
 		if not LittleTrouble.db.profile.timeDisable then
 			LittleTrouble.frame.castBarTimeText:SetText(("%.1f"):format(endTime - currentTime))

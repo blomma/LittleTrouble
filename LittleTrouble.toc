@@ -2,12 +2,12 @@
 ## Title: LittleTrouble |cff7fff7f -Ace2-|r
 ## Notes: A bar for autoshot
 ## Author: Fleetfoot
-## OptionalDeps: Ace2, SharedMediaLib, DewdropLib
+## OptionalDeps: Ace2, SharedMediaLib, Waterfall-1.0
 ## SavedVariables: LittleTroubleDB
 ## X-License: GPL v2 or later
 ## X-Website: http://fleetfoot.wowinterface.com/
 ## X-Category: Hunter
-## X-Embeds: Ace2, SharedMediaLib, DewdropLib
+## X-Embeds: Ace2, SharedMediaLib, Waterfall-1.0
 ## X-WoWIPortal: fleetfoot
 ## X-RelSite-WoWI: 6728
 
@@ -20,7 +20,7 @@ libs\AceDB\AceDB-2.0.lua
 libs\AceEvent\AceEvent-2.0.lua
 libs\AceLocale\AceLocale-2.2.lua
 libs\SharedMedia\SharedMedia-1.0.lua
-libs\Dewdrop\Dewdrop-2.0.lua
+libs\Waterfall\Waterfall-1.0.lua
 
 ## Addon
 LittleTrouble.lua
