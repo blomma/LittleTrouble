@@ -516,7 +516,7 @@ function LittleTrouble:Layout()
 	frame:SetHeight(db.height)
 	frame:SetScale(db.scale)
 
-	self.frame:SetBackdrop({
+	frame:SetBackdrop({
 		bgFile = "Interface\\ChatFrame\\ChatFrameBackground",
 		tile = true,
 		tileSize = 16,
