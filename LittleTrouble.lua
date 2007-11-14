@@ -68,6 +68,8 @@ end)
 local isAutoShot, isAimedShot, endTime, startTime
 local locked = true
 
+local GetTime = GetTime
+
 local defaults = {
 	alpha		= 1,
 	scale		= 1,
@@ -382,18 +384,18 @@ function LittleTrouble:OnEnable()
 	self:RegisterEvent("START_AUTOREPEAT_SPELL")
 	self:RegisterEvent("UNIT_SPELLCAST_START")
 
-	local castBar = self.frame.castBar
+	--local castBar = self.frame.castBar
 	self:RegisterEvent("SharedMedia_SetGlobal", function(mtype, override)
 		if mtype == "statusbar" then
-			castBar:SetStatusBarTexture(SM:Fetch("statusbar", override))
+			LittleTrouble.frame.castBar:SetStatusBarTexture(SM:Fetch("statusbar", override))
 		end
 	end)
 end
 
-function LittleTrouble:UNIT_SPELLCAST_START( unit )
-	if unit ~= "player" then return end
-	local name = select(1, UnitCastingInfo(unit))
-	if name ~= LS["Aimed Shot"] then return end
+function LittleTrouble:UNIT_SPELLCAST_START( unit, spell, rank )
+	if unit ~= "player" or spell ~= LS["Aimed Shot"] then return end
+	--local name = select(1, UnitCastingInfo(unit))
+	--if name ~= LS["Aimed Shot"] then return end
 
 	isAutoShot = false
 	isAimedShot = true
@@ -452,7 +454,8 @@ function LittleTrouble:OnUpdate()
 		local prc = (currentTime - startTime) / (endTime - startTime)
 		LittleTrouble.frame.castBar:SetValue(prc)
 		if not LittleTrouble.db.profile.timeDisable then
-			LittleTrouble.frame.castBarTimeText:SetText(("%.1f"):format(endTime - currentTime))
+			LittleTrouble.frame.castBarTimeText:SetFormattedText("%.1f", endTime - currentTime)
+			--LittleTrouble.frame.castBarTimeText:SetText(("%.1f"):format(endTime - currentTime))
 		end
 	else
 		local alpha = LittleTrouble.frame:GetAlpha() - .10

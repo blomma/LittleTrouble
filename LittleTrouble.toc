@@ -1,4 +1,4 @@
-## Interface: 20100
+## Interface: 20300
 ## Title: LittleTrouble |cff7fff7f -Ace2-|r
 ## Notes: A bar for autoshot
 ## Author: Fleetfoot
