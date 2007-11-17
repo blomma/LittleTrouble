@@ -384,7 +384,6 @@ function LittleTrouble:OnEnable()
 	self:RegisterEvent("START_AUTOREPEAT_SPELL")
 	self:RegisterEvent("UNIT_SPELLCAST_START")
 
-	--local castBar = self.frame.castBar
 	self:RegisterEvent("SharedMedia_SetGlobal", function(mtype, override)
 		if mtype == "statusbar" then
 			LittleTrouble.frame.castBar:SetStatusBarTexture(SM:Fetch("statusbar", override))
@@ -394,8 +393,6 @@ end
 
 function LittleTrouble:UNIT_SPELLCAST_START( unit, spell, rank )
 	if unit ~= "player" or spell ~= LS["Aimed Shot"] then return end
-	--local name = select(1, UnitCastingInfo(unit))
-	--if name ~= LS["Aimed Shot"] then return end
 
 	isAutoShot = false
 	isAimedShot = true
@@ -419,7 +416,8 @@ function LittleTrouble:UNIT_SPELLCAST_SUCCEEDED( unit, spell, rank )
 
 	local frame = self.frame
 	frame:SetAlpha(db.alpha)
-	frame.castBar:SetValue(0)
+	--frame.castBar:SetValue(0)
+	frame.castBar:SetMinMaxValues(startTime, endTime)
 	if not db.textDisable then
 		frame.castBarText:SetText(LS["Auto Shot"])
 	else
@@ -442,6 +440,35 @@ function LittleTrouble:STOP_AUTOREPEAT_SPELL()
 	end
 end
 
+local OnUpdateNew
+do
+	function OnUpdateNew( frame )
+		if isAutoShot then
+			local currentTime = GetTime()
+
+			if currentTime > endTime then
+				currentTime = endTime
+				isAutoShot = false
+			else
+
+				local elapsed = (currentTime - startTime)
+				frame.castBar:SetValue(startTime + elapsed)
+				if not LittleTrouble.db.profile.timeDisable then
+					frame.castBarTimeText:SetFormattedText("%.1f", endTime - currentTime)
+				end
+			end
+		else
+			local alpha = frame:GetAlpha() - .10
+
+			if alpha > 0 then
+				frame:SetAlpha(alpha)
+			else
+				frame:Hide()
+			end
+		end
+	end
+end
+
 function LittleTrouble:OnUpdate()
 	if isAutoShot then
 		local currentTime = GetTime()
@@ -451,11 +478,10 @@ function LittleTrouble:OnUpdate()
 			isAutoShot = false
 		end
 
-		local prc = (currentTime - startTime) / (endTime - startTime)
-		LittleTrouble.frame.castBar:SetValue(prc)
+		local elapsed = (currentTime - startTime)
+		LittleTrouble.frame.castBar:SetValue(startTime + elapsed)
 		if not LittleTrouble.db.profile.timeDisable then
 			LittleTrouble.frame.castBarTimeText:SetFormattedText("%.1f", endTime - currentTime)
-			--LittleTrouble.frame.castBarTimeText:SetText(("%.1f"):format(endTime - currentTime))
 		end
 	else
 		local alpha = LittleTrouble.frame:GetAlpha() - .10
@@ -500,7 +526,7 @@ function LittleTrouble:CreateFrameWork()
 		this:SetPoint("CENTER", UIParent, "CENTER", x/s, y/s)
 	end)
 
-	frame:SetScript( "OnUpdate", self.OnUpdate )
+	frame:SetScript( "OnUpdate", OnUpdateNew )
 	frame:SetClampedToScreen(true)
 
 	frame.castBar = CreateFrame("StatusBar", "LittleTroubleStatusBar", frame)
