@@ -23,7 +23,7 @@ local localization = (GetLocale() == "deDE") and {
 	["Aimed Shot"] = "Gezielter Schuss",
 	["Auto Shot"] = "Automatischer Schuss",
 } or (GetLocale() == "frFR") and {
-	["Aimed Shot"] = "Vis\195\169e",
+	["Aimed Shot"] = "Visée",
 	["Auto Shot"] = "Tir automatique",
 } or (GetLocale() == "zhCN") and {
 	["Aimed Shot"] = "瞄准射击",
@@ -392,7 +392,6 @@ function LittleTrouble:UNIT_SPELLCAST_SUCCEEDED( unit, spell, rank )
 
 	local frame = self.frame
 	frame:SetAlpha(db.alpha)
-	--frame.castBar:SetValue(0)
 	frame.castBar:SetMinMaxValues(startTime, endTime)
 	if not db.textDisable then
 		frame.castBarText:SetText(L["Auto Shot"])
