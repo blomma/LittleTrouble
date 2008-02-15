@@ -1,5 +1,3 @@
-local VERSION = tonumber(("$Revision$"):match("%d+"))
-
 local SM = AceLibrary("SharedMedia-1.0")
 SM:Register("statusbar", "BantoBar", "Interface\\AddOns\\LittleTrouble\\textures\\BantoBar.tga")
 SM:Register("statusbar", "Glaze", "Interface\\AddOns\\LittleTrouble\\textures\\glaze.tga")
@@ -9,9 +7,6 @@ SM:Register("statusbar", "Smooth", "Interface\\AddOns\\LittleTrouble\\textures\\
 
 LittleTrouble = AceLibrary("AceAddon-2.0"):new("AceEvent-2.0", "AceDB-2.0", "AceConsole-2.0")
 local LittleTrouble, self = LittleTrouble, LittleTrouble
-LittleTrouble.version = "r" .. VERSION
-LittleTrouble.revision = VERSION
-LittleTrouble.date = ("$Date$"):match("%d%d%d%d%-%d%d%-%d%d")
 
 local localeTables = {}
 function LittleTrouble:L(name, defaultTable)
@@ -45,8 +40,6 @@ local localization = (GetLocale() == "deDE") and {
 } or {}
 
 local L = LittleTrouble:L("LittleTrouble", localization)
-
-local LS = AceLibrary("AceLocale-2.2"):new("LittleTrouble")
 
 local isAutoShot, isAimedShot, endTime, startTime
 local locked = true
@@ -375,7 +368,7 @@ function LittleTrouble:OnEnable()
 end
 
 function LittleTrouble:UNIT_SPELLCAST_START( unit, spell, rank )
-	if unit ~= "player" or spell ~= LS["Aimed Shot"] then return end
+	if unit ~= "player" or spell ~= L["Aimed Shot"] then return end
 
 	isAutoShot = false
 	isAimedShot = true
@@ -384,13 +377,13 @@ end
 
 function LittleTrouble:UNIT_SPELLCAST_SUCCEEDED( unit, spell, rank )
 	if unit ~= "player" then return end
-	if spell ~= LS["Auto Shot"] and spell ~= LS["Aimed Shot"] then return end
+	if spell ~= L["Auto Shot"] and spell ~= L["Aimed Shot"] then return end
 
 	startTime = GetTime()
 	endTime = startTime + UnitRangedDamage("player")
 
 	local db = self.db.profile
-	if spell == LS["Aimed Shot"] then
+	if spell == L["Aimed Shot"] then
 		isAimedShot = false
 		endTime = endTime + db.autoShotDelay
 	end
@@ -402,7 +395,7 @@ function LittleTrouble:UNIT_SPELLCAST_SUCCEEDED( unit, spell, rank )
 	--frame.castBar:SetValue(0)
 	frame.castBar:SetMinMaxValues(startTime, endTime)
 	if not db.textDisable then
-		frame.castBarText:SetText(LS["Auto Shot"])
+		frame.castBarText:SetText(L["Auto Shot"])
 	else
 		frame.castBarText:SetText("")
 	end
