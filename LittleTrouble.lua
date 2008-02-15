@@ -13,57 +13,40 @@ LittleTrouble.version = "r" .. VERSION
 LittleTrouble.revision = VERSION
 LittleTrouble.date = ("$Date$"):match("%d%d%d%d%-%d%d%-%d%d")
 
-local L = setmetatable({}, {__index = function(self, key) return key end})
-local LS = AceLibrary("AceLocale-2.2"):new("LittleTrouble")
+local localeTables = {}
+function LittleTrouble:L(name, defaultTable)
+	if not localeTables[name] then
+		localeTables[name] = setmetatable(defaultTable or {}, {__index = function(self, key)
+			self[key] = key
+			return key
+		end})
+	end
+	return localeTables[name]
+end
 
-LS:RegisterTranslations("enUS", function()
-return {
-	["Aimed Shot"] = true,
-	["Auto Shot"] = true,
-}
-end)
-
-LS:RegisterTranslations("deDE", function()
-return {
+local localization = (GetLocale() == "deDE") and {
 	["Aimed Shot"] = "Gezielter Schuss",
 	["Auto Shot"] = "Automatischer Schuss",
-}
-end)
-
-LS:RegisterTranslations("frFR", function()
-return {
+} or (GetLocale() == "frFR") and {
 	["Aimed Shot"] = "Vis\195\169e",
 	["Auto Shot"] = "Tir automatique",
-}
-end)
-
-LS:RegisterTranslations("zhCN", function()
-return {
+} or (GetLocale() == "zhCN") and {
 	["Aimed Shot"] = "瞄准射击",
 	["Auto Shot"] = "自动射击",
-}
-end)
-
-LS:RegisterTranslations("zhTW", function()
-return {
+} or (GetLocale() == "zhTW") and {
 	["Aimed Shot"] = "瞄準射擊",
 	["Auto Shot"] = "自動射擊",
-}
-end)
-
-LS:RegisterTranslations("koKR", function()
-return {
+} or (GetLocale() == "koKR") and {
 	["Aimed Shot"] = "조준 사격",
 	["Auto Shot"] = "자동 사격",
-}
-end)
-
-LS:RegisterTranslations("esES", function()
-return {
+} or (GetLocale() == "esES") and {
 	["Aimed Shot"] = "Disparo de punter\195\173a",
 	["Auto Shot"] = "Disparo autom\195\161tico",
-}
-end)
+} or {}
+
+local L = LittleTrouble:L("LittleTrouble", localization)
+
+local LS = AceLibrary("AceLocale-2.2"):new("LittleTrouble")
 
 local isAutoShot, isAimedShot, endTime, startTime
 local locked = true
@@ -97,8 +80,8 @@ local options = {
 	type = "group",
 	args = {
 		lock = {
-			name = L["Lock"],
-			desc = L["Lock/Unlock the bar."],
+			name = "Lock",
+			desc = "Lock/Unlock the bar.",
 			type = "toggle",
 			get = function() return locked end,
 			set = function(v)
@@ -108,7 +91,7 @@ local options = {
 					LittleTrouble.frame:SetAlpha(1)
 					LittleTrouble.frame:Show()
 					LittleTrouble.frame.castBarTimeText:SetText("1.3")
-					LittleTrouble.frame.castBarText:SetText(L["Son of a bitch must pay!"])
+					LittleTrouble.frame.castBarText:SetText("Son of a bitch must pay!")
 				else
 					LittleTrouble.frame:Hide()
 					LittleTrouble.frame.castBarTimeText:SetText("")
@@ -118,8 +101,8 @@ local options = {
 			end,
 		},
 		autoshotdelay = {
-			name = L["Autoshot delay after Aimedshot"], 
-			desc = L["Sets the amount of seconds to delay the autoshot following a aimedshot."],
+			name = "Autoshot delay after Aimedshot",
+			desc = "Sets the amount of seconds to delay the autoshot following a aimedshot.",
 			type = "range", 
 			min = 0,
 			max = 2,
@@ -130,8 +113,8 @@ local options = {
 			end,
 		},
 		texture = {
-			name = L["Texture"],
-			desc = L["Sets the texture of the bar."],
+			name = "Texture",
+			desc = "Sets the texture of the bar.",
 			type = "text",
 			get = function() return LittleTrouble.db.profile.texture end,
 			set = function(v)
@@ -141,8 +124,8 @@ local options = {
 			validate = SM:List('statusbar'),
 		},
 		font = {
-			name = L["Font"],
-			desc = L["Sets the font face of the bar."],
+			name = "Font",
+			desc = "Sets the font face of the bar.",
 			type = "text",
 			get = function() return LittleTrouble.db.profile.font end,
 			set = function(v)
@@ -152,8 +135,8 @@ local options = {
 			validate = SM:List('font'),
 		},
 		border = {
-			name = L["Border"],
-			desc = L["Sets the border of the bar."],
+			name = "Border",
+			desc = "Sets the border of the bar.",
 			type = "text",
 			get = function() return LittleTrouble.db.profile.borderStyle end,
 			set = function(v)
@@ -163,13 +146,13 @@ local options = {
 			validate = {"Classic", "Hidden"},
 		},
 		size = {
-			name = L["Size"],
-			desc = L["Size settings."],
+			name = "Size",
+			desc = "Size settings.",
 			type = 'group',
 			args = {
 				scale = {
-					name = L["Scale"],
-					desc = L["Sets the scale of the bar."],
+					name = "Scale",
+					desc = "Sets the scale of the bar.",
 					type = 'range',
 					isPercent = true,
 					min = 0.5,
@@ -183,8 +166,8 @@ local options = {
 					end,
 				},
 				width = {
-					name = L["Width"], 
-					desc = L["Sets the width of the bar."],
+					name = "Width",
+					desc = "Sets the width of the bar.",
 					type = "range", 
 					min = 10, 
 					max = 5000, 
@@ -196,8 +179,8 @@ local options = {
 					end,
 				},
 				height = {
-					name = L["Height"], 
-					desc = L["Sets the height of the bar."],
+					name = "Height",
+					desc = "Sets the height of the bar.",
 					type = "range", 
 					min = 10,
 					max = 500,
@@ -211,20 +194,20 @@ local options = {
 			},
 		},
 		text = {
-			name = L["Text"],
-			desc = L["Bar text settings."],
+			name = "Text",
+			desc = "Bar text settings.",
 			type = "group",
 			args = {
 				disable = {
-					name = L["Disable"],
-					desc = L["Disables the text on the bar."],
+					name = "Disable",
+					desc = "Disables the text on the bar.",
 					type = 'toggle',
 					get = function() return LittleTrouble.db.profile.textDisable end,
 					set = function(v) LittleTrouble.db.profile.textDisable = v end,
 				},
 				height = {
-					name = L["Font height"], 
-					desc = L["Sets the height of the text."],
+					name = "Font height",
+					desc = "Sets the height of the text.",
 					type = "range", 
 					min = 6,
 					max = 32,
@@ -238,20 +221,20 @@ local options = {
 			}
 		},
 		time = {
-			name = L["Time"],
-			desc = L["Bar time settings."],
+			name = "Time",
+			desc = "Bar time settings.",
 			type = "group",
 			args = {
 				disable = {
-					name = L["Disable"],
-					desc = L["Disables the time on the bar."],
+					name = "Disable",
+					desc = "Disables the time on the bar.",
 					type = 'toggle',
 					get = function() return LittleTrouble.db.profile.timeDisable end,
 					set = function(v) LittleTrouble.db.profile.timeDisable = v end,
 				},
 				time = {
-					name = L["Font height"], 
-					desc = L["Sets the height of the time."],
+					name = "Font height",
+					desc = "Sets the height of the time.",
 					type = "range", 
 					min = 6, 
 					max = 32, 
@@ -265,13 +248,13 @@ local options = {
 			}
 		},
 		color = {
-			name = L["Color"],
-			desc = L["Color settings."],
+			name = "Color",
+			desc = "Color settings.",
 			type = 'group',
 			args = {
 				alpha = {
-					name = L["Alpha"],
-					desc = L["Sets the alpha of the bar."],
+					name = "Alpha",
+					desc = "Sets the alpha of the bar.",
 					type = "range", 
 					min = 0,
 					max = 1,
@@ -284,8 +267,8 @@ local options = {
 					end,
 				},
 				time = {
-					name = L["Time"], 
-					desc = L["Sets the color of the time."],
+					name = "Time",
+					desc = "Sets the color of the time.",
 					type = 'color',
 					hasAlpha = true,
 					get = function()
@@ -298,8 +281,8 @@ local options = {
 					end
 				},
 				text = {
-					name = L["Text"], 
-					desc = L["Sets the color of the text."],
+					name = "Text",
+					desc = "Sets the color of the text.",
 					type = 'color',
 					hasAlpha = true,
 					get = function()
@@ -312,8 +295,8 @@ local options = {
 					end
 				},
 				bar = {
-					name = L["Bar"], 
-					desc = L["Sets the color of the bar."],
+					name = "Bar",
+					desc = "Sets the color of the bar.",
 					type = 'color',
 					hasAlpha = true,
 					get = function()
@@ -326,8 +309,8 @@ local options = {
 					end
 				},
 				background = {
-					name = L["Background"], 
-					desc = L["Sets the color of the background."],
+					name = "Background",
+					desc = "Sets the color of the background.",
 					type = 'color',
 					hasAlpha = true,
 					get = function()
@@ -340,8 +323,8 @@ local options = {
 					end
 				},
 				border = {
-					name = L["Border"], 
-					desc = L["Sets the color of the border."],
+					name = "Border",
+					desc = "Sets the color of the border.",
 					type = 'color',
 					hasAlpha = true,
 					get = function()
@@ -369,7 +352,7 @@ LittleTrouble:RegisterDefaults('profile', defaults)
 function LittleTrouble:OnInitialize()
 	AceLibrary("Waterfall-1.0"):Register('LittleTrouble',
 		'aceOptions', options,
-		'title', L["LittleTrouble"],
+		'title', "LittleTrouble",
 		'treeLevels', 3,
 		'colorR', 0.8, 'colorG', 0.8, 'colorB', 0.8
 	)
