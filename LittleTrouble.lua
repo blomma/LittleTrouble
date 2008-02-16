@@ -1,3 +1,5 @@
+if select(2, UnitClass("player")) ~= "HUNTER" then return end
+
 local SM = AceLibrary("SharedMedia-1.0")
 SM:Register("statusbar", "BantoBar", "Interface\\AddOns\\LittleTrouble\\textures\\BantoBar.tga")
 SM:Register("statusbar", "Glaze", "Interface\\AddOns\\LittleTrouble\\textures\\glaze.tga")
