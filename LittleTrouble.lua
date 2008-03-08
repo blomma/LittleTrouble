@@ -1,11 +1,11 @@
 if select(2, UnitClass("player")) ~= "HUNTER" then return end
 
-local SM = AceLibrary("SharedMedia-1.0")
-SM:Register("statusbar", "BantoBar", "Interface\\AddOns\\LittleTrouble\\textures\\BantoBar.tga")
-SM:Register("statusbar", "Glaze", "Interface\\AddOns\\LittleTrouble\\textures\\glaze.tga")
-SM:Register("statusbar", "Gloss", "Interface\\AddOns\\LittleTrouble\\textures\\Gloss.tga")
-SM:Register("statusbar", "Perl", "Interface\\AddOns\\LittleTrouble\\textures\\perl.tga")
-SM:Register("statusbar", "Smooth", "Interface\\AddOns\\LittleTrouble\\textures\\smooth.tga")
+local media = LibStub("LibSharedMedia-2.0")
+media:Register("statusbar", "BantoBar", "Interface\\AddOns\\LittleTrouble\\textures\\BantoBar.tga")
+media:Register("statusbar", "Glaze", "Interface\\AddOns\\LittleTrouble\\textures\\glaze.tga")
+media:Register("statusbar", "Gloss", "Interface\\AddOns\\LittleTrouble\\textures\\Gloss.tga")
+media:Register("statusbar", "Perl", "Interface\\AddOns\\LittleTrouble\\textures\\perl.tga")
+media:Register("statusbar", "Smooth", "Interface\\AddOns\\LittleTrouble\\textures\\smooth.tga")
 
 LittleTrouble = AceLibrary("AceAddon-2.0"):new("AceEvent-2.0", "AceDB-2.0", "AceConsole-2.0")
 local LittleTrouble, self = LittleTrouble, LittleTrouble
@@ -116,7 +116,7 @@ local options = {
 				LittleTrouble.db.profile.texture = v
 				LittleTrouble:Layout()
 			end,
-			validate = SM:List('statusbar'),
+			validate = media:List('statusbar'),
 		},
 		font = {
 			name = "Font",
@@ -127,7 +127,7 @@ local options = {
 				LittleTrouble.db.profile.font = v
 				LittleTrouble:Layout()
 			end,
-			validate = SM:List('font'),
+			validate = media:List('font'),
 		},
 		border = {
 			name = "Border",
@@ -364,7 +364,7 @@ function LittleTrouble:OnEnable()
 
 	self:RegisterEvent("SharedMedia_SetGlobal", function(mtype, override)
 		if mtype == "statusbar" then
-			LittleTrouble.frame.castBar:SetStatusBarTexture(SM:Fetch("statusbar", override))
+			LittleTrouble.frame.castBar:SetStatusBarTexture(media:Fetch("statusbar", override))
 		end
 	end)
 end
@@ -539,12 +539,12 @@ function LittleTrouble:Layout()
 	frame:SetBackdropColor(unpack(db.colors.background))
 	frame:SetBackdropBorderColor(unpack(db.colors.border))
 
-	local font = SM:Fetch('font', db.font)
+	local font = media:Fetch('font', db.font)
 
 	local castBar = frame.castBar
 	castBar:SetWidth(db.width - border[3] * 2)
 	castBar:SetHeight(db.height - border[3] * 2)
-	castBar:SetStatusBarTexture( SM:Fetch("statusbar", db.texture))
+	castBar:SetStatusBarTexture( media:Fetch("statusbar", db.texture))
 	castBar:SetStatusBarColor(unpack(db.colors.bar))
 	castBar:SetMinMaxValues(0, 1)
 	castBar:ClearAllPoints()

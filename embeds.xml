@@ -7,7 +7,7 @@
 <Script file="libs\AceConsole\AceConsole-2.0.lua"/>
 <Script file="libs\AceEvent\AceEvent-2.0.lua"/>
 <Script file="libs\AceAddon\AceAddon-2.0.lua"/>
-<Script file="libs\SharedMedia\SharedMedia-1.0.lua"/>
 <Script file="libs\Waterfall\Waterfall-1.0.lua"/>
+<Include file="libs\LibSharedMedia-2.0\lib.xml"/>
 
 </Ui>
