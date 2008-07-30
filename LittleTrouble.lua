@@ -1,11 +1,6 @@
 if select(2, UnitClass("player")) ~= "HUNTER" then return end
 
-local media = LibStub("LibSharedMedia-2.0")
-media:Register("statusbar", "BantoBar", "Interface\\AddOns\\LittleTrouble\\textures\\BantoBar.tga")
-media:Register("statusbar", "Glaze", "Interface\\AddOns\\LittleTrouble\\textures\\glaze.tga")
-media:Register("statusbar", "Gloss", "Interface\\AddOns\\LittleTrouble\\textures\\Gloss.tga")
-media:Register("statusbar", "Perl", "Interface\\AddOns\\LittleTrouble\\textures\\perl.tga")
-media:Register("statusbar", "Smooth", "Interface\\AddOns\\LittleTrouble\\textures\\smooth.tga")
+local media = LibStub and ( LibStub("LibSharedMedia-3.0", true) or LibStub("LibSharedMedia-2.0", true) )
 
 LittleTrouble = AceLibrary("AceAddon-2.0"):new("AceEvent-2.0", "AceDB-2.0", "AceConsole-2.0")
 local LittleTrouble, self = LittleTrouble, LittleTrouble
