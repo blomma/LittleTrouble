@@ -1,16 +1,17 @@
 ## Interface: 20400
-## Title: LittleTrouble |cff7fff7f -Ace2-|r
+## Title: LittleTrouble 2.0 @project-version@
 ## Notes: A bar for autoshot
-## Author: Fleetfoot
-## OptionalDeps: Ace2, LibSharedMedia-2.0, Waterfall-1.0
+## Author: fleetfoot
+## DefaultState: enabled
+## LoadOnDemand: 0
+## OptionalDeps: Ace3, LibSharedMedia-3.0
 ## SavedVariables: LittleTroubleDB
 ## X-License: GPL v2 or later
-
-## X-Website: http://fleetfoot.wowinterface.com/
+## X-Website: http://wow.curseforge.com/projects/littletrouble/
 ## X-Category: Hunter
-## X-Embeds: Ace2, SharedMediaLib, Waterfall-1.0
-## X-WoWIPortal: fleetfoot
-## X-RelSite-WoWI: 6728
+## Version: 2.0 @project-version@
+## Date: @project-date-iso@
+## X-Timestamp: @project-date-timestamp@
 
 ## Libraries
 embeds.xml
