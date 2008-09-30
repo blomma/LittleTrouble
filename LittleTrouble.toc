@@ -13,7 +13,6 @@
 ## Date: @project-date-iso@
 ## X-Timestamp: @project-date-timestamp@
 
-
 ## Libraries
 embeds.xml
 
